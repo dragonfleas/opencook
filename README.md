@@ -1,4 +1,4 @@
-# opencook-template
+# opencook
 
 An Electron application with React and TypeScript
 
