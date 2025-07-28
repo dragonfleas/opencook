@@ -5,3 +5,4 @@ LICENSE.md
 README.md
 tsconfig.json
 tsconfig.*.json
+.claude/**
