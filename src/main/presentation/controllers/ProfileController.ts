@@ -150,7 +150,7 @@ export class ProfileController {
     }
   }
 
-  private handleError(error: unknown): IpcResponse {
+  private handleError<T>(error: unknown): IpcResponse<T> {
     if (error instanceof ProfileNotFoundError) {
       return {
         success: false,

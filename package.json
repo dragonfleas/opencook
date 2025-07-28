@@ -23,7 +23,7 @@
     "build:linux": "electron-vite build && electron-builder --linux",
     "test": "vitest run",
     "test:unit": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.mjs",
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage"

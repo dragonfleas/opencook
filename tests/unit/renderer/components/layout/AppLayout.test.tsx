@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { NavigationProvider } from '@/contexts/NavigationContext'
+import type { ReactNode } from 'react'
 
 // Mock ThemeContext
 vi.mock('@/contexts/ThemeContext', () => ({
@@ -33,9 +35,14 @@ vi.mock('lucide-react', () => ({
   Package2: () => <div data-testid="package-icon">Package2</div>
 }))
 
+// Test wrapper with NavigationProvider
+const renderWithProviders = (children: ReactNode): ReturnType<typeof render> => {
+  return render(<NavigationProvider>{children}</NavigationProvider>)
+}
+
 describe('AppLayout', () => {
   it('should render children content', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div data-testid="test-content">Test Content</div>
       </AppLayout>
@@ -46,7 +53,7 @@ describe('AppLayout', () => {
   })
 
   it('should render sidebar with navigation items', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -66,7 +73,7 @@ describe('AppLayout', () => {
   })
 
   it('should show main content area', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div data-testid="content">Main Content</div>
       </AppLayout>
@@ -82,7 +89,7 @@ describe('AppLayout', () => {
   })
 
   it('should render with proper structure', () => {
-    const { container } = render(
+    const { container } = renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -102,7 +109,7 @@ describe('AppLayout', () => {
   })
 
   it('should render theme toggle button', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -114,7 +121,7 @@ describe('AppLayout', () => {
   })
 
   it('should have header with trigger and title', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -134,7 +141,7 @@ describe('AppLayout', () => {
   })
 
   it('should render footer with user info', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -150,7 +157,7 @@ describe('AppLayout', () => {
   })
 
   it('should have proper accessibility attributes', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
@@ -165,7 +172,7 @@ describe('AppLayout', () => {
   })
 
   it('should integrate with theme context', () => {
-    render(
+    renderWithProviders(
       <AppLayout>
         <div>Content</div>
       </AppLayout>
