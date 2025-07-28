@@ -1,3 +1,11 @@
+export enum PaymentMethodType {
+  CREDIT_CARD = 'CREDIT_CARD',
+  DEBIT_CARD = 'DEBIT_CARD',
+  PAYPAL = 'PAYPAL',
+  APPLE_PAY = 'APPLE_PAY',
+  GOOGLE_PAY = 'GOOGLE_PAY'
+}
+
 export interface ProfileSummaryDto {
   id: string
   name: string
@@ -38,6 +46,9 @@ export interface ProfileResponseDto {
     maskedDisplay: string
     holderName: string
     isExpired: boolean
+    lastFourDigits?: string
+    expiryMonth?: number
+    expiryYear?: number
   }
   createdAt: string
   updatedAt: string
@@ -62,6 +73,7 @@ export interface CreateProfileDto {
   name: string
   email: string
   phoneNumber?: string
+  useSameAddress: boolean
   shippingAddress: {
     firstName: string
     lastName: string

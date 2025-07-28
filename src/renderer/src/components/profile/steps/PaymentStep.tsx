@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { CreateProfileFormData } from '@/lib/validations/profile'
-import { PaymentMethodType } from '@shared/types/profile.types'
+import { PaymentMethodType } from '@/types/profile'
 
 interface PaymentStepProps {
   form: UseFormReturn<CreateProfileFormData>

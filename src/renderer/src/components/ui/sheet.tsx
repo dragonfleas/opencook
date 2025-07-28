@@ -29,6 +29,8 @@ const Sheet = React.forwardRef<HTMLDivElement, SheetProps>(
           document.body.style.overflow = 'unset'
         }
       }
+
+      return undefined
     }, [open, onOpenChange])
 
     if (!open) return null

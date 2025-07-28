@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { CreateProfileFormData } from '@/lib/validations/profile'
-import { PaymentMethodType } from '@shared/types/profile.types'
+import { PaymentMethodType } from '@/types/profile'
 
 interface ReviewStepProps {
   form: UseFormReturn<CreateProfileFormData>
@@ -129,12 +129,14 @@ export function ReviewStep({ form }: ReviewStepProps): JSX.Element {
             <div className="flex justify-between">
               <span className="text-sm text-muted-foreground">Type:</span>
               <span className="text-sm font-medium">
-                {getPaymentMethodLabel(formData.paymentMethod.type)}
+                {getPaymentMethodLabel(formData.paymentMethod.type as PaymentMethodType)}
               </span>
             </div>
 
-            {(formData.paymentMethod.type === PaymentMethodType.CREDIT_CARD ||
-              formData.paymentMethod.type === PaymentMethodType.DEBIT_CARD) && (
+            {((formData.paymentMethod.type as PaymentMethodType) ===
+              PaymentMethodType.CREDIT_CARD ||
+              (formData.paymentMethod.type as PaymentMethodType) ===
+                PaymentMethodType.DEBIT_CARD) && (
               <>
                 {formData.paymentMethod.holderName && (
                   <div className="flex justify-between">

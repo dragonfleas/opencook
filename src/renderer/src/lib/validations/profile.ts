@@ -13,7 +13,7 @@ const addressSchema = z.object({
 
 const paymentMethodSchema = z.object({
   type: z.enum(['CREDIT_CARD', 'DEBIT_CARD', 'PAYPAL', 'APPLE_PAY', 'GOOGLE_PAY'], {
-    required_error: 'Payment method type is required'
+    message: 'Payment method type is required'
   }),
   cardNumber: z.string().optional(),
   expiryMonth: z.number().min(1).max(12),
@@ -28,7 +28,7 @@ export const createProfileSchema = z.object({
   phoneNumber: z.string().optional(),
   shippingAddress: addressSchema,
   billingAddress: addressSchema,
-  useSameAddress: z.boolean().default(true),
+  useSameAddress: z.boolean(),
   paymentMethod: paymentMethodSchema
 })
 

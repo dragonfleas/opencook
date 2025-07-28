@@ -8,12 +8,11 @@
   ],
   "compilerOptions": {
     "composite": true,
-    "jsx": "react-jsx",
+    "jsx": "preserve",
+    "types": ["react", "react-dom"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "baseUrl": ".",
     "paths": {
-      "@renderer/*": [
-        "src/renderer/src/*"
-      ],
       "@/*": [
         "src/renderer/src/*"
       ]

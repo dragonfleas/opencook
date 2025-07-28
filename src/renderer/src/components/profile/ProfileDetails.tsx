@@ -32,7 +32,7 @@ import {
   User
 } from 'lucide-react'
 import { ProfileResponseDto } from '@/types/profile'
-import { PaymentMethodType } from '@/shared/types/profile.types'
+import { PaymentMethodType } from '@/types/profile'
 
 interface ProfileDetailsProps {
   profile: ProfileResponseDto
@@ -212,11 +212,15 @@ export function ProfileDetails({
             <div className="text-sm space-y-2">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Type:</span>
-                <span>{getPaymentMethodLabel(profile.paymentMethod.type)}</span>
+                <span>
+                  {getPaymentMethodLabel(profile.paymentMethod.type as PaymentMethodType)}
+                </span>
               </div>
 
-              {(profile.paymentMethod.type === PaymentMethodType.CREDIT_CARD ||
-                profile.paymentMethod.type === PaymentMethodType.DEBIT_CARD) && (
+              {((profile.paymentMethod.type as PaymentMethodType) ===
+                PaymentMethodType.CREDIT_CARD ||
+                (profile.paymentMethod.type as PaymentMethodType) ===
+                  PaymentMethodType.DEBIT_CARD) && (
                 <>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Cardholder:</span>
