@@ -28,7 +28,11 @@ interface ProfileFormProps {
   isLoading?: boolean
 }
 
-export function ProfileForm({ onSubmit, onCancel, isLoading = false }: ProfileFormProps) {
+export function ProfileForm({
+  onSubmit,
+  onCancel,
+  isLoading = false
+}: ProfileFormProps): JSX.Element {
   const [currentStep, setCurrentStep] = useState<StepId>('personal')
 
   const form = useForm<CreateProfileFormData>({
@@ -73,7 +77,7 @@ export function ProfileForm({ onSubmit, onCancel, isLoading = false }: ProfileFo
   const currentStepIndex = STEPS.findIndex((step) => step.id === currentStep)
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100
 
-  const handleNext = async () => {
+  const handleNext = async (): Promise<void> => {
     const stepFields = getStepFields(currentStep)
     const isStepValid = await form.trigger(stepFields)
 
@@ -85,7 +89,7 @@ export function ProfileForm({ onSubmit, onCancel, isLoading = false }: ProfileFo
     }
   }
 
-  const handlePrevious = () => {
+  const handlePrevious = (): void => {
     const prevIndex = currentStepIndex - 1
     if (prevIndex >= 0) {
       setCurrentStep(STEPS[prevIndex].id)

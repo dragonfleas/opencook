@@ -1,23 +1,23 @@
 import { UseFormReturn } from 'react-hook-form'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { CreateProfileFormData } from '@/lib/validations/profile'
-import { PaymentMethodType } from '@/shared/types/profile.types'
+import { PaymentMethodType } from '@shared/types/profile.types'
 
 interface ReviewStepProps {
   form: UseFormReturn<CreateProfileFormData>
 }
 
-export function ReviewStep({ form }: ReviewStepProps) {
+export function ReviewStep({ form }: ReviewStepProps): JSX.Element {
   const formData = form.getValues()
 
-  const formatCardNumber = (cardNumber: string) => {
+  const formatCardNumber = (cardNumber: string): string => {
     if (!cardNumber) return ''
     return `**** **** **** ${cardNumber.slice(-4)}`
   }
 
-  const getPaymentMethodLabel = (type: PaymentMethodType) => {
+  const getPaymentMethodLabel = (type: PaymentMethodType): string => {
     switch (type) {
       case PaymentMethodType.CREDIT_CARD:
         return 'Credit Card'

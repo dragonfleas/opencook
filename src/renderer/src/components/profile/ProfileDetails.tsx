@@ -41,15 +41,20 @@ interface ProfileDetailsProps {
   onToggleActive: () => void
 }
 
-export function ProfileDetails({ profile, onEdit, onDelete, onToggleActive }: ProfileDetailsProps) {
+export function ProfileDetails({
+  profile,
+  onEdit,
+  onDelete,
+  onToggleActive
+}: ProfileDetailsProps): JSX.Element {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
-  const formatCardNumber = (cardNumber?: string) => {
+  const formatCardNumber = (cardNumber?: string): string => {
     if (!cardNumber) return 'Not provided'
     return `**** **** **** ${cardNumber.slice(-4)}`
   }
 
-  const getPaymentMethodLabel = (type: PaymentMethodType) => {
+  const getPaymentMethodLabel = (type: PaymentMethodType): string => {
     switch (type) {
       case PaymentMethodType.CREDIT_CARD:
         return 'Credit Card'
@@ -66,7 +71,7 @@ export function ProfileDetails({ profile, onEdit, onDelete, onToggleActive }: Pr
     }
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -259,8 +264,8 @@ export function ProfileDetails({ profile, onEdit, onDelete, onToggleActive }: Pr
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Profile</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{profile.name}"? This action cannot be undone. All
-              data associated with this profile will be permanently removed.
+              Are you sure you want to delete &quot;{profile.name}&quot;? This action cannot be
+              undone. All data associated with this profile will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

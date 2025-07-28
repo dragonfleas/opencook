@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/select'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { CreateProfileFormData } from '@/lib/validations/profile'
-import { PaymentMethodType } from '@/shared/types/profile.types'
+import { PaymentMethodType } from '@shared/types/profile.types'
 
 interface PaymentStepProps {
   form: UseFormReturn<CreateProfileFormData>
@@ -34,7 +34,7 @@ const YEARS = Array.from({ length: 10 }, (_, i) => {
   return { value: year, label: String(year) }
 })
 
-export function PaymentStep({ form }: PaymentStepProps) {
+export function PaymentStep({ form }: PaymentStepProps): JSX.Element {
   const paymentType = form.watch('paymentMethod.type')
   const showCardFields =
     paymentType === PaymentMethodType.CREDIT_CARD || paymentType === PaymentMethodType.DEBIT_CARD

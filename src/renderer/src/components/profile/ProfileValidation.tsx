@@ -35,7 +35,7 @@ export function ProfileValidation({
   profile,
   onRevalidate,
   isValidating = false
-}: ProfileValidationProps) {
+}: ProfileValidationProps): JSX.Element {
   const [lastValidated] = useState(new Date().toISOString())
 
   const validateProfile = (): ValidationResult[] => {
@@ -53,7 +53,7 @@ export function ProfileValidation({
 
     // Phone number validation (if provided)
     if (profile.phoneNumber) {
-      const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/
+      const phoneRegex = /^\+?[\d\s\-()]{10,}$/
       results.push({
         field: 'phoneNumber',
         label: 'Phone Number',
@@ -154,7 +154,7 @@ export function ProfileValidation({
   const totalCount = validationResults.length
   const progressPercentage = (validCount / totalCount) * 100
 
-  const getStatusIcon = (status: ValidationResult['status']) => {
+  const getStatusIcon = (status: ValidationResult['status']): JSX.Element => {
     switch (status) {
       case 'valid':
         return <CheckCircle className="size-4 text-green-600" />
@@ -167,7 +167,7 @@ export function ProfileValidation({
     }
   }
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: string): JSX.Element => {
     switch (status) {
       case 'valid':
         return <Badge className="bg-green-100 text-green-800 hover:bg-green-100">Valid</Badge>
@@ -180,7 +180,7 @@ export function ProfileValidation({
     }
   }
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleString('en-US', {
       year: 'numeric',
       month: 'short',

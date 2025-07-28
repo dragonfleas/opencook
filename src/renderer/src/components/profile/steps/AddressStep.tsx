@@ -68,10 +68,10 @@ const US_STATES = [
   { value: 'WY', label: 'Wyoming' }
 ]
 
-export function AddressStep({ form }: AddressStepProps) {
+export function AddressStep({ form }: AddressStepProps): JSX.Element {
   const useSameAddress = form.watch('useSameAddress')
 
-  const handleSameAddressChange = (checked: boolean) => {
+  const handleSameAddressChange = (checked: boolean): void => {
     form.setValue('useSameAddress', checked)
 
     if (checked) {
