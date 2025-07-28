@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [22.x, 24.x]
 
     steps:
       - name: Checkout code
@@ -33,7 +33,6 @@ jobs:
         run: npm run test:integration
 
       - name: Upload coverage reports
-        if: matrix.node-version == '20.x'
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
@@ -50,7 +49,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -73,7 +72,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '24.x'
           cache: 'npm'
 
       - name: Install dependencies
@@ -88,7 +87,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        node-version: [20.x]
+        node-version: [22.x, 24.x]
 
     steps:
       - name: Checkout code
@@ -121,9 +120,9 @@ jobs:
     steps:
       - name: Check job statuses
         run: |
-          if [[ "${{ needs.test.result }}" == "failure" || 
-                "${{ needs.lint.result }}" == "failure" || 
-                "${{ needs.format.result }}" == "failure" || 
+          if [[ "${{ needs.test.result }}" == "failure" ||
+                "${{ needs.lint.result }}" == "failure" ||
+                "${{ needs.format.result }}" == "failure" ||
                 "${{ needs.build.result }}" == "failure" ]]; then
             echo "❌ One or more checks failed"
             echo "Test: ${{ needs.test.result }}"
