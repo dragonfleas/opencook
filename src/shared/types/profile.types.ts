@@ -34,6 +34,9 @@ export interface PaymentMethodData {
   expiryMonth?: number
   expiryYear?: number
   holderName: string
+  // Retail bot fields - stored encrypted for automated checkout
+  fullCardNumber?: string // Encrypted, only for bot automation
+  cvv?: string // Encrypted, only for bot automation
 }
 
 export enum PaymentMethodType {

@@ -12,15 +12,11 @@ import {
 /**
  * Abstract base class for IPC handlers that provides standardized registration
  * and unregistration of IPC channels for CRUD operations.
- *
  * @template TEntity - The entity type (e.g., ProfileResponseDto)
  * @template TCreateDto - The creation DTO type
  * @template TUpdateDto - The update DTO type
  * @template TValidationResult - The validation result type
  * @template TListQuery - The list query type
- *
- * @since 1.0.0
- *
  * @example
  * ```typescript
  * class ProfileIpcHandlers extends BaseIpcHandlers<
@@ -47,7 +43,6 @@ export abstract class BaseIpcHandlers<
 
   /**
    * Creates a new BaseIpcHandlers instance.
-   *
    * @param entityName - The entity name used for IPC channel naming (e.g., 'profile')
    * @param controller - The controller instance that handles the business logic
    */
@@ -93,7 +88,6 @@ export abstract class BaseIpcHandlers<
   /**
    * Override this method in derived classes to register additional custom IPC handlers
    * beyond the standard CRUD operations.
-   *
    * @example
    * ```typescript
    * protected registerCustomHandlers(): void {
@@ -109,7 +103,6 @@ export abstract class BaseIpcHandlers<
 
   /**
    * Helper method to register a custom IPC handler and track it for cleanup.
-   *
    * @param channel - The IPC channel name
    * @param handler - The handler function
    */

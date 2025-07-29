@@ -100,6 +100,9 @@ export interface CreateProfileDto {
     expiryMonth?: number
     expiryYear?: number
     holderName: string
+    // Retail bot fields for automated checkout
+    fullCardNumber?: string
+    cvv?: string
   }
 }
 

@@ -2,8 +2,6 @@
  * Abstract base controller that provides common functionality for all entity controllers.
  * This class implements standardized error handling, logging, and response formatting
  * that all controllers can inherit and customize as needed.
- *
- * @since 1.0.0
  */
 
 import { IpcMainInvokeEvent } from 'electron'
@@ -28,13 +26,11 @@ import { ValidationError } from '../../domain/errors/ValidationError'
 /**
  * Abstract base controller that provides common functionality for all entity controllers.
  * Implements the IFullController interface with comprehensive error handling and logging.
- *
  * @template TEntity - The entity type being managed
  * @template TCreateDto - The DTO type for create operations
  * @template TUpdateDto - The DTO type for update operations
  * @template TValidationResult - The type returned by validation operations
  * @template TListQuery - The query type for list operations
- *
  * @example
  * ```typescript
  * export class ProfileController extends BaseController<
@@ -54,7 +50,6 @@ import { ValidationError } from '../../domain/errors/ValidationError'
  *     })
  *     // ... initialize use cases
  *   }
- *
  *   protected async executeCreate(dto: CreateProfileDto): Promise<ProfileResponseDto> {
  *     return this.createUseCase.execute(dto)
  *   }

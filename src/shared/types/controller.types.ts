@@ -1,8 +1,6 @@
 /**
  * Base types and interfaces for controllers in the presentation layer.
  * These provide a standardized structure for handling IPC requests across all entities.
- *
- * @since 1.0.0
  */
 
 import { IpcMainInvokeEvent } from 'electron'
@@ -18,12 +16,10 @@ import {
 /**
  * Base interface for all controllers that handle IPC requests.
  * Provides a standardized CRUD interface that all entity controllers should implement.
- *
  * @template TEntity - The entity type (e.g., Profile, User)
  * @template TCreateDto - The DTO type for create operations
  * @template TUpdateDto - The DTO type for update operations
  * @template TListQuery - The query type for list operations
- *
  * @example
  * ```typescript
  * class ProfileController implements IBaseController<
@@ -47,7 +43,6 @@ export interface IBaseController<
 > {
   /**
    * Handles create requests for the entity.
-   *
    * @param event - The IPC event object
    * @param dto - The data transfer object containing entity data
    * @returns Promise resolving to an IPC response with the created entity
@@ -56,7 +51,6 @@ export interface IBaseController<
 
   /**
    * Handles get requests for a specific entity by ID.
-   *
    * @param event - The IPC event object
    * @param id - The unique identifier of the entity
    * @returns Promise resolving to an IPC response with the entity data
@@ -65,7 +59,6 @@ export interface IBaseController<
 
   /**
    * Handles list requests for entities with optional filtering.
-   *
    * @param event - The IPC event object
    * @param query - Query parameters for filtering and pagination
    * @returns Promise resolving to an IPC response with the list of entities
@@ -77,7 +70,6 @@ export interface IBaseController<
 
   /**
    * Handles update requests for an existing entity.
-   *
    * @param event - The IPC event object
    * @param dto - The data transfer object containing updated entity data
    * @returns Promise resolving to an IPC response with the updated entity
@@ -86,7 +78,6 @@ export interface IBaseController<
 
   /**
    * Handles delete requests for an entity by ID.
-   *
    * @param event - The IPC event object
    * @param id - The unique identifier of the entity to delete
    * @returns Promise resolving to an IPC response (void on success)
@@ -97,7 +88,6 @@ export interface IBaseController<
 /**
  * Extended controller interface for entities that support activation/deactivation.
  * Many entities in the application have an active/inactive state.
- *
  * @template TEntity - The entity type
  * @template TCreateDto - The DTO type for create operations
  * @template TUpdateDto - The DTO type for update operations
@@ -111,7 +101,6 @@ export interface IActivatableController<
 > extends IBaseController<TEntity, TCreateDto, TUpdateDto, TListQuery> {
   /**
    * Handles toggle active status requests for an entity.
-   *
    * @param event - The IPC event object
    * @param id - The unique identifier of the entity
    * @param isActive - Whether the entity should be active or inactive
@@ -127,7 +116,6 @@ export interface IActivatableController<
 /**
  * Extended controller interface for entities that support validation operations.
  * Some entities need validation before certain operations can be performed.
- *
  * @template TEntity - The entity type
  * @template TCreateDto - The DTO type for create operations
  * @template TUpdateDto - The DTO type for update operations
@@ -143,7 +131,6 @@ export interface IValidatableController<
 > extends IBaseController<TEntity, TCreateDto, TUpdateDto, TListQuery> {
   /**
    * Handles validation requests for an entity.
-   *
    * @param event - The IPC event object
    * @param id - The unique identifier of the entity to validate
    * @param context - Optional context information for validation
@@ -160,7 +147,6 @@ export interface IValidatableController<
  * Full-featured controller interface that combines all standard operations.
  * This is the most complete interface that supports create, read, update, delete,
  * activate/deactivate, and validation operations.
- *
  * @template TEntity - The entity type
  * @template TCreateDto - The DTO type for create operations
  * @template TUpdateDto - The DTO type for update operations

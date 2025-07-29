@@ -6,13 +6,11 @@ import { CreateProfileDto, ProfileResponseDto, ProfileDtoMapper } from '../dto/P
 
 /**
  * Use case for creating new user profiles with anti-scalping measures.
- *
  * This use case handles the business logic for profile creation, including:
  * - Enforcing maximum profile limits to prevent scalping
  * - Ensuring profile name uniqueness
  * - Validating all profile data
  * - Persisting the new profile
- *
  * @example
  * ```typescript
  * const createProfile = new CreateProfileUseCase(profileRepository);
@@ -22,7 +20,6 @@ import { CreateProfileDto, ProfileResponseDto, ProfileDtoMapper } from '../dto/P
  *   shippingAddress: { ... },
  *   paymentMethod: { ... }
  * };
- *
  * try {
  *   const result = await createProfile.execute(profileDto);
  *   console.log(`Profile created with ID: ${result.id}`);
@@ -32,8 +29,6 @@ import { CreateProfileDto, ProfileResponseDto, ProfileDtoMapper } from '../dto/P
  *   }
  * }
  * ```
- *
- * @since 1.0.0
  */
 export class CreateProfileUseCase {
   /** Maximum number of profiles per user to prevent scalping behavior */
@@ -41,27 +36,22 @@ export class CreateProfileUseCase {
 
   /**
    * Creates a new CreateProfileUseCase instance.
-   *
    * @param profileRepository - Repository for profile persistence operations
    */
   constructor(private readonly profileRepository: IProfileRepository) {}
 
   /**
    * Executes the profile creation use case.
-   *
    * This method validates the request, checks business rules, creates the profile
    * entity, and persists it to storage. It includes anti-scalping measures by
    * limiting the total number of profiles that can be created.
-   *
    * @param dto - Profile creation data transfer object
    * @returns Promise that resolves to the created profile response DTO
-   *
    * @throws {ProfileLimitExceededError} When maximum profile limit is reached
    * @throws {DuplicateProfileError} When a profile with the same name already exists
    * @throws {InvalidProfileError} When profile data validation fails
    * @throws {InvalidAddressError} When address data is invalid
    * @throws {InvalidPaymentMethodError} When payment method data is invalid
-   *
    * @example
    * ```typescript
    * const dto: CreateProfileDto = {
@@ -85,7 +75,6 @@ export class CreateProfileUseCase {
    *     holderName: 'John Doe'
    *   }
    * };
-   *
    * const profile = await useCase.execute(dto);
    * ```
    */

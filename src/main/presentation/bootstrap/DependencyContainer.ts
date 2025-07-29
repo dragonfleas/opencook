@@ -1,6 +1,6 @@
 import { IProfileRepository } from '../../domain/repositories/IProfileRepository'
-import { SqliteProfileRepository } from '../../infrastructure/repositories/SqliteProfileRepository'
-import { DatabaseConnection } from '../../infrastructure/database/DatabaseConnection'
+import { PrismaProfileRepository } from '../../infrastructure/repositories/PrismaProfileRepository'
+import { PrismaConnection } from '../../infrastructure/database/PrismaConnection'
 
 import { CreateProfileUseCase } from '../../application/use-cases/CreateProfileUseCase'
 import { GetProfileUseCase } from '../../application/use-cases/GetProfileUseCase'
@@ -35,7 +35,7 @@ export class DependencyContainer {
 
   private initializeInfrastructure(): void {
     // Infrastructure layer - repositories
-    this._profileRepository = new SqliteProfileRepository()
+    this._profileRepository = new PrismaProfileRepository()
   }
 
   private initializeApplication(): void {
@@ -69,8 +69,8 @@ export class DependencyContainer {
 
   async initialize(): Promise<void> {
     // Initialize database connection
-    const dbConnection = DatabaseConnection.getInstance()
-    await dbConnection.initialize()
+    const prismaConnection = PrismaConnection.getInstance()
+    await prismaConnection.connect()
 
     // Register IPC handlers
     this._profileIpcHandlers.register()
@@ -81,8 +81,8 @@ export class DependencyContainer {
     this._profileIpcHandlers.unregister()
 
     // Close database connection
-    const dbConnection = DatabaseConnection.getInstance()
-    await dbConnection.close()
+    const prismaConnection = PrismaConnection.getInstance()
+    await prismaConnection.disconnect()
   }
 
   // Getters for accessing dependencies (useful for testing)

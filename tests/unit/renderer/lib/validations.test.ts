@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { createProfileSchema, updateProfileSchema } from '@/lib/validations'
+import { createProfileSchema, updateProfileSchema } from '@/lib/validations/profile'
 
 describe('Profile Validation Schemas', () => {
   describe('createProfileSchema', () => {
@@ -8,6 +8,7 @@ describe('Profile Validation Schemas', () => {
         name: 'Test Profile',
         email: 'test@example.com',
         phoneNumber: '+1234567890',
+        useSameAddress: false,
         shippingAddress: {
           firstName: 'John',
           lastName: 'Doe',
@@ -29,9 +30,10 @@ describe('Profile Validation Schemas', () => {
         },
         paymentMethod: {
           type: 'CREDIT_CARD' as const,
-          lastFourDigits: '1234',
+          cardNumber: '4111111111111111',
           expiryMonth: 12,
           expiryYear: 2025,
+          cvv: '123',
           holderName: 'John Doe'
         }
       }
@@ -44,7 +46,17 @@ describe('Profile Validation Schemas', () => {
       const minimalProfile = {
         name: 'Test Profile',
         email: 'test@example.com',
+        useSameAddress: true,
         shippingAddress: {
+          firstName: 'John',
+          lastName: 'Doe',
+          addressLine1: '123 Main St',
+          city: 'New York',
+          state: 'NY',
+          postalCode: '10001',
+          country: 'US'
+        },
+        billingAddress: {
           firstName: 'John',
           lastName: 'Doe',
           addressLine1: '123 Main St',
@@ -55,6 +67,10 @@ describe('Profile Validation Schemas', () => {
         },
         paymentMethod: {
           type: 'PAYPAL' as const,
+          cardNumber: '',
+          expiryMonth: 1,
+          expiryYear: new Date().getFullYear(),
+          cvv: '',
           holderName: 'John Doe'
         }
       }

@@ -67,7 +67,6 @@ describe('AppLayout', () => {
     expect(screen.getAllByText('Dashboard').length).toBeGreaterThan(0)
     expect(screen.getByText('Profiles')).toBeInTheDocument()
     expect(screen.getByText('Analytics')).toBeInTheDocument()
-    expect(screen.getByText('Create Profile')).toBeInTheDocument()
     expect(screen.getAllByText('Settings').length).toBeGreaterThan(0)
     expect(screen.getByText('Validation')).toBeInTheDocument()
   })

@@ -12,17 +12,20 @@ import { Badge } from '@/components/ui/badge'
 import { DashboardCard } from '@/components/layout/DashboardCard'
 import { useProfiles } from '@/hooks/useProfiles'
 import { ProfileSummaryDto } from '@/types/profile'
+import { Plus } from 'lucide-react'
 
 interface ProfileListProps {
   onProfileSelect?: (profile: ProfileSummaryDto) => void
   onProfileEdit?: (profile: ProfileSummaryDto) => void
   onProfileValidate?: (profile: ProfileSummaryDto) => void
+  onCreateProfile?: () => void
 }
 
 export function ProfileList({
   onProfileSelect,
   onProfileEdit,
-  onProfileValidate
+  onProfileValidate,
+  onCreateProfile
 }: ProfileListProps): JSX.Element {
   const [showActiveOnly, setShowActiveOnly] = useState(false)
   const { profiles, loading, error, total, activeCount, refetch, deleteProfile, toggleActive } =
@@ -104,6 +107,12 @@ export function ProfileList({
             </p>
           </div>
           <div className="flex items-center space-x-3">
+            {onCreateProfile && (
+              <Button onClick={onCreateProfile} size="default">
+                <Plus className="mr-2 h-4 w-4" />
+                New Profile
+              </Button>
+            )}
             <Button
               variant={showActiveOnly ? 'default' : 'outline'}
               size="default"

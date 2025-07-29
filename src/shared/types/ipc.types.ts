@@ -1,14 +1,11 @@
 /**
  * Shared types for Inter-Process Communication (IPC) between main and renderer processes.
  * These types provide a standardized interface for all IPC operations across the application.
- *
- * @since 1.0.0
  */
 
 /**
  * Standard response format for all IPC operations.
  * Provides consistent success/error handling across all API calls.
- *
  * @template T - The type of data returned on successful operations
  * @example
  * ```typescript
@@ -17,7 +14,6 @@
  *   success: true,
  *   data: { id: '1', name: 'John Doe' }
  * }
- *
  * // Error response
  * const response: IpcResponse<User> = {
  *   success: false,
@@ -88,11 +84,9 @@ export enum IpcOperation {
 /**
  * Creates a standardized IPC channel name.
  * Follows the pattern: {entity}:{operation}
- *
  * @param entity - The entity name (e.g., 'profile', 'user')
  * @param operation - The operation being performed
  * @returns The formatted channel name
- *
  * @example
  * ```typescript
  * const channelName = createIpcChannel('profile', IpcOperation.CREATE)
@@ -105,11 +99,9 @@ export function createIpcChannel(entity: string, operation: IpcOperation): strin
 
 /**
  * Type-safe helper for creating success responses.
- *
  * @template T - The type of data being returned
  * @param data - The data to include in the response
  * @returns A success IpcResponse
- *
  * @example
  * ```typescript
  * const response = createSuccessResponse({ id: '1', name: 'John' })
@@ -125,13 +117,11 @@ export function createSuccessResponse<T>(data?: T): IpcResponse<T> {
 
 /**
  * Type-safe helper for creating error responses.
- *
  * @template T - The type of data (for type consistency)
  * @param code - The error code
  * @param message - The error message
  * @param details - Optional additional error details
  * @returns An error IpcResponse
- *
  * @example
  * ```typescript
  * const response = createErrorResponse('USER_NOT_FOUND', 'User not found')
@@ -208,7 +198,6 @@ export interface BaseListQuery {
 /**
  * Standard list response format.
  * Provides consistent structure for paginated results.
- *
  * @template T - The type of items in the list
  */
 export interface BaseListResponse<T> {

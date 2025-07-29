@@ -70,13 +70,19 @@ const US_STATES = [
 
 export function AddressStep({ form }: AddressStepProps): JSX.Element {
   const useSameAddress = form.watch('useSameAddress')
+  const shippingAddress = form.watch('shippingAddress')
+
+  // Sync billing address when shipping address changes and checkbox is checked
+  if (useSameAddress && shippingAddress) {
+    form.setValue('billingAddress', { ...shippingAddress })
+  }
 
   const handleSameAddressChange = (checked: boolean): void => {
     form.setValue('useSameAddress', checked)
 
     if (checked) {
-      const shippingAddress = form.getValues('shippingAddress')
-      form.setValue('billingAddress', { ...shippingAddress })
+      const currentShipping = form.getValues('shippingAddress')
+      form.setValue('billingAddress', { ...currentShipping })
     }
   }
 
@@ -233,7 +239,7 @@ export function AddressStep({ form }: AddressStepProps): JSX.Element {
               <Checkbox checked={field.value} onCheckedChange={handleSameAddressChange} />
             </FormControl>
             <div className="space-y-1 leading-none">
-              <FormLabel>Use same address for billing</FormLabel>
+              <FormLabel>Same as billing</FormLabel>
             </div>
           </FormItem>
         )}

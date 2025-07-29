@@ -2,23 +2,18 @@ import { InvalidProfileError } from '../errors/ProfileErrors'
 
 /**
  * Value object representing a profile name with validation rules.
- *
  * ProfileName ensures that all profile names meet business requirements:
  * - Between 3 and 50 characters in length
  * - Contains only alphanumeric characters, spaces, hyphens, and underscores
  * - Cannot be empty or whitespace-only
- *
  * @example
  * ```typescript
  * const profileName = ProfileName.create('Main Profile');
  * console.log(profileName.value); // 'Main Profile'
- *
  * // Validation examples
  * ProfileName.create('Hi'); // throws InvalidProfileError (too short)
  * ProfileName.create('Profile@Name'); // throws InvalidProfileError (invalid chars)
  * ```
- *
- * @since 1.0.0
  */
 export class ProfileName {
   /** Minimum allowed length for profile names */
@@ -32,19 +27,15 @@ export class ProfileName {
 
   /**
    * Private constructor to enforce creation through factory method.
-   *
    * @param _value - The validated profile name string
    */
   private constructor(private readonly _value: string) {}
 
   /**
    * Factory method to create a ProfileName instance with validation.
-   *
    * @param name - The profile name string to validate and create
    * @returns New ProfileName instance
-   *
    * @throws {InvalidProfileError} When name fails validation rules
-   *
    * @example
    * ```typescript
    * const name = ProfileName.create('My Profile');
@@ -84,7 +75,6 @@ export class ProfileName {
 
   /**
    * Gets the validated profile name string.
-   *
    * @returns The profile name string
    */
   get value(): string {
@@ -93,7 +83,6 @@ export class ProfileName {
 
   /**
    * Compares this ProfileName with another for equality.
-   *
    * @param other - Another ProfileName to compare with
    * @returns True if both ProfileNames have the same value, false otherwise
    */
@@ -103,7 +92,6 @@ export class ProfileName {
 
   /**
    * Returns the string representation of this ProfileName.
-   *
    * @returns The profile name string
    */
   toString(): string {

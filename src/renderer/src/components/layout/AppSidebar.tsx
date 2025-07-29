@@ -1,4 +1,4 @@
-import { Home, Users, Plus, Settings, BarChart3, Shield, User } from 'lucide-react'
+import { Home, Users, Settings, BarChart3, Shield, User } from 'lucide-react'
 import { useNavigation } from '@/hooks/use-navigation'
 import { type View } from '@/contexts/NavigationContext'
 
@@ -27,11 +27,6 @@ const items = [
     title: 'Profiles',
     view: 'profiles' as View,
     icon: Users
-  },
-  {
-    title: 'Create Profile',
-    view: 'create-profile' as View,
-    icon: Plus
   },
   {
     title: 'Analytics',

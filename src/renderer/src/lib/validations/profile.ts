@@ -22,15 +22,38 @@ const paymentMethodSchema = z.object({
   holderName: z.string().min(1, 'Cardholder name is required')
 })
 
-export const createProfileSchema = z.object({
-  name: z.string().min(1, 'Profile name is required'),
-  email: z.string().email('Invalid email address'),
-  phoneNumber: z.string().optional(),
-  shippingAddress: addressSchema,
-  billingAddress: addressSchema,
-  useSameAddress: z.boolean(),
-  paymentMethod: paymentMethodSchema
-})
+export const createProfileSchema = z
+  .object({
+    name: z.string().min(1, 'Profile name is required'),
+    email: z.string().email('Invalid email address'),
+    phoneNumber: z.string().optional(),
+    shippingAddress: addressSchema,
+    billingAddress: addressSchema,
+    useSameAddress: z.boolean(),
+    paymentMethod: paymentMethodSchema
+  })
+  .refine(
+    (data) => {
+      // If using same address, billing address is not required
+      if (data.useSameAddress) {
+        return true
+      }
+      // Otherwise, validate billing address fields
+      return (
+        data.billingAddress.firstName.length > 0 &&
+        data.billingAddress.lastName.length > 0 &&
+        data.billingAddress.addressLine1.length > 0 &&
+        data.billingAddress.city.length > 0 &&
+        data.billingAddress.state.length > 0 &&
+        data.billingAddress.postalCode.length > 0 &&
+        data.billingAddress.country.length > 0
+      )
+    },
+    {
+      message: 'Billing address is required when not using same address',
+      path: ['billingAddress']
+    }
+  )
 
 export const updateProfileSchema = z.object({
   id: z.string().min(1, 'Profile ID is required'),

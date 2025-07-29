@@ -78,6 +78,12 @@ export function ProfileForm({
   const progress = ((currentStepIndex + 1) / STEPS.length) * 100
 
   const handleNext = async (): Promise<void> => {
+    // If on address step and using same address, sync billing with shipping
+    if (currentStep === 'address' && form.getValues('useSameAddress')) {
+      const shippingAddress = form.getValues('shippingAddress')
+      form.setValue('billingAddress', { ...shippingAddress })
+    }
+
     const stepFields = getStepFields(currentStep)
     const isStepValid = await form.trigger(stepFields)
 
@@ -96,7 +102,13 @@ export function ProfileForm({
     }
   }
 
-  const handleSubmit = form.handleSubmit(onSubmit)
+  const handleSubmit = form.handleSubmit((data) => {
+    // Ensure billing address is synced if using same address
+    if (data.useSameAddress) {
+      data.billingAddress = { ...data.shippingAddress }
+    }
+    onSubmit(data)
+  })
 
   const isLastStep = currentStepIndex === STEPS.length - 1
   const isFirstStep = currentStepIndex === 0
@@ -206,7 +218,7 @@ function getStepFields(step: StepId): (keyof CreateProfileFormData)[] {
     case 'personal':
       return ['name', 'email', 'phoneNumber']
     case 'address':
-      return ['shippingAddress', 'billingAddress', 'useSameAddress']
+      return ['shippingAddress', 'useSameAddress']
     case 'payment':
       return ['paymentMethod']
     case 'review':

@@ -13,10 +13,8 @@ import {
 
 /**
  * Domain entity representing a user profile for retail automation.
- *
  * This entity encapsulates all business rules related to user profiles,
  * including anti-scalping measures, purchase tracking, and validation logic.
- *
  * @example
  * ```typescript
  * const profileData: ProfileCreationData = {
@@ -25,13 +23,10 @@ import {
  *   shippingAddress: { ... },
  *   paymentMethod: { ... }
  * };
- *
  * const profile = Profile.create(profileData);
  * profile.canMakePurchase(); // Check if profile can make purchase
  * profile.recordPurchase(); // Record a successful purchase
  * ```
- *
- * @since 1.0.0
  */
 export class Profile {
   /** Cooldown period between purchases in seconds (5 minutes) */
@@ -84,7 +79,6 @@ export class Profile {
 
   /**
    * Private constructor to ensure profiles are created through factory methods.
-   *
    * @param data - Profile initialization data
    * @param data.id - Unique profile identifier
    * @param data.name - Profile name
@@ -130,17 +124,13 @@ export class Profile {
 
   /**
    * Factory method to create a new profile from creation data.
-   *
    * This method generates a new unique ID and creates all necessary value objects
    * from the provided data. The profile is created in an active state by default.
-   *
    * @param data - Profile creation data containing required fields
    * @returns New Profile instance with generated ID and current timestamps
-   *
    * @throws {InvalidProfileError} When profile data validation fails
    * @throws {InvalidAddressError} When address data is invalid
    * @throws {InvalidPaymentMethodError} When payment method data is invalid
-   *
    * @example
    * ```typescript
    * const profile = Profile.create({
@@ -181,16 +171,12 @@ export class Profile {
 
   /**
    * Factory method to recreate a profile from stored data.
-   *
    * This method is used to reconstruct Profile entities from data retrieved
    * from storage (database, etc.). Unlike create(), this preserves existing
    * IDs, timestamps, and state.
-   *
    * @param data - Complete profile data including ID and metadata
    * @returns Profile instance recreated from stored data
-   *
    * @throws {InvalidProfileError} When profile data validation fails
-   *
    * @example
    * ```typescript
    * const profileData = await repository.findById(profileId);
@@ -217,19 +203,15 @@ export class Profile {
   // Anti-scalping methods
   /**
    * Validates whether the profile can make a purchase based on anti-scalping rules.
-   *
    * This method enforces the following business rules:
    * 1. Profile must be active
    * 2. Must respect cooldown period between purchases (5 minutes)
    * 3. Must not exceed daily purchase limit (3 purchases per day)
-   *
    * The cooldown prevents rapid-fire purchases that could indicate automated
    * scalping behavior. The daily limit prevents accumulation of excessive inventory.
-   *
    * @throws {ProfileInactiveError} When the profile is deactivated
    * @throws {PurchaseCooldownError} When attempting purchase before cooldown expires
    * @throws {InvalidProfileError} When daily purchase limit is exceeded
-   *
    * @example
    * ```typescript
    * try {
@@ -269,21 +251,17 @@ export class Profile {
 
   /**
    * Records a successful purchase and updates anti-scalping tracking data.
-   *
    * This method performs the following actions:
    * 1. Validates purchase eligibility using canMakePurchase()
    * 2. Increments total purchase count
    * 3. Updates last used timestamp
    * 4. Increments daily purchase counter
    * 5. Cleans up old daily purchase records (keeps last 7 days)
-   *
    * The method automatically maintains a rolling window of daily purchase
    * data to prevent memory leaks while preserving recent activity patterns.
-   *
    * @throws {ProfileInactiveError} When the profile is deactivated
    * @throws {PurchaseCooldownError} When attempting purchase before cooldown expires
    * @throws {InvalidProfileError} When daily purchase limit is exceeded
-   *
    * @example
    * ```typescript
    * try {
@@ -321,13 +299,10 @@ export class Profile {
 
   /**
    * Indicates whether the profile shows suspicious activity patterns.
-   *
    * A profile is considered suspicious if it has made more purchases than
    * the threshold (10 purchases), which may indicate scalping behavior.
    * This flag can be used by monitoring systems to flag accounts for review.
-   *
    * @returns True if purchase count exceeds suspicious threshold, false otherwise
-   *
    * @example
    * ```typescript
    * if (profile.isSuspicious) {
@@ -341,13 +316,10 @@ export class Profile {
 
   /**
    * Gets the remaining cooldown time in seconds before next purchase is allowed.
-   *
    * This method calculates how much time remains in the anti-scalping cooldown
    * period. Returns 0 if no cooldown is active (profile hasn't been used or
    * cooldown has expired).
-   *
    * @returns Remaining cooldown time in seconds (0 if no cooldown active)
-   *
    * @example
    * ```typescript
    * const remaining = profile.cooldownRemaining;
@@ -368,15 +340,11 @@ export class Profile {
   // Update methods
   /**
    * Updates the profile name with validation.
-   *
    * This method creates a new ProfileName value object to ensure the name
    * meets all validation requirements, then updates the profile's updatedAt
    * timestamp to track the modification.
-   *
    * @param name - New name for the profile
-   *
    * @throws {InvalidProfileNameError} When the name is invalid (empty, too long, etc.)
-   *
    * @example
    * ```typescript
    * profile.updateName('Updated Profile Name');
@@ -390,15 +358,11 @@ export class Profile {
 
   /**
    * Updates the profile email address with validation.
-   *
    * This method creates a new Email value object to ensure the email
    * is properly formatted and valid, then updates the profile's updatedAt
    * timestamp to track the modification.
-   *
    * @param email - New email address for the profile
-   *
    * @throws {InvalidEmailError} When the email format is invalid
-   *
    * @example
    * ```typescript
    * profile.updateEmail('newemail@example.com');
@@ -412,15 +376,11 @@ export class Profile {
 
   /**
    * Updates the profile phone number with validation.
-   *
    * This method creates a new PhoneNumber value object (or undefined if not provided)
    * to ensure the phone number meets validation requirements, then updates the
    * profile's updatedAt timestamp.
-   *
    * @param phoneNumber - New phone number for the profile (optional)
-   *
    * @throws {InvalidPhoneNumberError} When the phone number format is invalid
-   *
    * @example
    * ```typescript
    * profile.updatePhoneNumber('+1-555-123-4567');
@@ -435,12 +395,9 @@ export class Profile {
 
   /**
    * Updates the profile shipping address.
-   *
    * This method replaces the current shipping address with the provided
    * Address value object and updates the profile's updatedAt timestamp.
-   *
    * @param address - New shipping address for the profile
-   *
    * @example
    * ```typescript
    * const newAddress = Address.create({
@@ -462,19 +419,15 @@ export class Profile {
 
   /**
    * Updates the profile billing address.
-   *
    * This method replaces the current billing address with the provided
    * Address value object (or removes it if undefined is passed) and updates
    * the profile's updatedAt timestamp.
-   *
    * @param address - New billing address for the profile (optional)
-   *
    * @example
    * ```typescript
    * // Set billing address
    * const billingAddress = Address.create({ ... });
    * profile.updateBillingAddress(billingAddress);
-   *
    * // Remove billing address (will use shipping address)
    * profile.updateBillingAddress(undefined);
    * ```
@@ -486,12 +439,9 @@ export class Profile {
 
   /**
    * Updates the profile payment method.
-   *
    * This method replaces the current payment method with the provided
    * PaymentMethod value object and updates the profile's updatedAt timestamp.
-   *
    * @param paymentMethod - New payment method for the profile
-   *
    * @example
    * ```typescript
    * const newPayment = PaymentMethod.create({
@@ -511,11 +461,9 @@ export class Profile {
 
   /**
    * Activates the profile, allowing it to be used for purchases.
-   *
    * This method sets the profile's active status to true and updates
    * the updatedAt timestamp. Active profiles can make purchases subject
    * to anti-scalping rules.
-   *
    * @example
    * ```typescript
    * profile.activate();
@@ -529,11 +477,9 @@ export class Profile {
 
   /**
    * Deactivates the profile, preventing it from being used for purchases.
-   *
    * This method sets the profile's active status to false and updates
    * the updatedAt timestamp. Deactivated profiles cannot make purchases
    * and will throw ProfileInactiveError when canMakePurchase() is called.
-   *
    * @example
    * ```typescript
    * profile.deactivate();
@@ -548,7 +494,6 @@ export class Profile {
   // Getters
   /**
    * Gets the unique identifier for this profile.
-   *
    * @returns The profile's unique ID as a ProfileId value object
    */
   get id(): ProfileId {
@@ -557,7 +502,6 @@ export class Profile {
 
   /**
    * Gets the human-readable name for this profile.
-   *
    * @returns The profile's name as a ProfileName value object
    */
   get name(): ProfileName {
@@ -566,7 +510,6 @@ export class Profile {
 
   /**
    * Gets the email address associated with this profile.
-   *
    * @returns The profile's email as an Email value object
    */
   get email(): Email {
@@ -575,7 +518,6 @@ export class Profile {
 
   /**
    * Gets the phone number associated with this profile.
-   *
    * @returns The profile's phone number as a PhoneNumber value object, or undefined if not set
    */
   get phoneNumber(): PhoneNumber | undefined {
@@ -584,7 +526,6 @@ export class Profile {
 
   /**
    * Gets the shipping address for this profile.
-   *
    * @returns The profile's shipping address as an Address value object
    */
   get shippingAddress(): Address {
@@ -593,7 +534,6 @@ export class Profile {
 
   /**
    * Gets the billing address for this profile.
-   *
    * @returns The profile's billing address as an Address value object, or undefined if not set
    */
   get billingAddress(): Address | undefined {
@@ -602,7 +542,6 @@ export class Profile {
 
   /**
    * Gets the payment method for this profile.
-   *
    * @returns The profile's payment method as a PaymentMethod value object
    */
   get paymentMethod(): PaymentMethod {
@@ -611,7 +550,6 @@ export class Profile {
 
   /**
    * Gets the timestamp when this profile was created.
-   *
    * @returns The profile's creation date and time
    */
   get createdAt(): Date {
@@ -620,9 +558,7 @@ export class Profile {
 
   /**
    * Gets the timestamp when this profile was last updated.
-   *
    * This timestamp is automatically updated whenever any profile data changes.
-   *
    * @returns The profile's last update date and time
    */
   get updatedAt(): Date {
@@ -631,9 +567,7 @@ export class Profile {
 
   /**
    * Gets the timestamp when this profile was last used for a purchase.
-   *
    * This timestamp is used for anti-scalping cooldown calculations.
-   *
    * @returns The profile's last usage date and time, or undefined if never used
    */
   get lastUsedAt(): Date | undefined {
@@ -642,9 +576,7 @@ export class Profile {
 
   /**
    * Gets the total number of purchases made with this profile.
-   *
    * This count is used for suspicious activity detection and analytics.
-   *
    * @returns The total number of purchases made with this profile
    */
   get purchaseCount(): number {
@@ -653,10 +585,8 @@ export class Profile {
 
   /**
    * Gets whether this profile is currently active.
-   *
    * Only active profiles can be used for purchases. Inactive profiles
    * will throw ProfileInactiveError when attempting to make purchases.
-   *
    * @returns True if the profile is active, false if deactivated
    */
   get isActive(): boolean {
@@ -665,12 +595,9 @@ export class Profile {
 
   /**
    * Gets the effective billing address for this profile.
-   *
    * If a specific billing address is set, returns that address.
    * Otherwise, returns the shipping address as the default billing address.
-   *
    * @returns The billing address to use for transactions
-   *
    * @example
    * ```typescript
    * const billingAddr = profile.effectiveBillingAddress;
@@ -683,18 +610,14 @@ export class Profile {
 
   /**
    * Converts the profile entity to a plain data object for serialization.
-   *
    * This method extracts all profile data into a serializable format
    * suitable for storage, transmission, or logging. All value objects
    * are converted to their primitive representations.
-   *
    * @returns Plain object containing all profile data
-   *
    * @example
    * ```typescript
    * const profileData = profile.toData();
    * await repository.save(profileData);
-   *
    * // or for logging
    * console.log('Profile data:', JSON.stringify(profileData, null, 2));
    * ```

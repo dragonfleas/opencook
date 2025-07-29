@@ -258,12 +258,18 @@ export class SqliteProfileRepository implements IProfileRepository {
   }
 
   private encryptPaymentMethod(paymentMethod: PaymentMethodData): string {
+    // RETAIL BOT USE CASE: Encrypt all sensitive payment data with maximum security
+    // AES-256-GCM authenticated encryption for automated checkout functionality
     const sensitiveData = {
       lastFourDigits: paymentMethod.lastFourDigits,
       expiryMonth: paymentMethod.expiryMonth,
-      expiryYear: paymentMethod.expiryYear
+      expiryYear: paymentMethod.expiryYear,
+      // Store encrypted full card data for bot automation
+      fullCardNumber: paymentMethod.fullCardNumber,
+      cvv: paymentMethod.cvv
     }
 
+    // Use AES-256-GCM authenticated encryption for maximum security
     return this.encryptionService.encrypt(JSON.stringify(sensitiveData))
   }
 

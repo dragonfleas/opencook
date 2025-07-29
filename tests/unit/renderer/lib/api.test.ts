@@ -16,11 +16,12 @@ const mockApi = {
 }
 
 // Mock global window object
-global.window = {
-  api: mockApi
-} as Window & {
-  api: typeof mockApi
-}
+Object.defineProperty(global, 'window', {
+  value: {
+    api: mockApi
+  },
+  writable: true
+})
 
 describe('ProfileAPI', () => {
   beforeEach(() => {

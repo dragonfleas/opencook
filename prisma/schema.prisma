@@ -1,0 +1,59 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id                          String    @id
+  name                        String    @unique
+  email                       String
+  phoneNumber                 String?   @map("phone_number")
+
+  // Shipping address (required)
+  shippingFirstName           String    @map("shipping_first_name")
+  shippingLastName            String    @map("shipping_last_name")
+  shippingAddressLine1        String    @map("shipping_address_line1")
+  shippingAddressLine2        String?   @map("shipping_address_line2")
+  shippingCity                String    @map("shipping_city")
+  shippingState               String    @map("shipping_state")
+  shippingPostalCode          String    @map("shipping_postal_code")
+  shippingCountry             String    @map("shipping_country")
+
+  // Billing address (optional)
+  billingFirstName            String?   @map("billing_first_name")
+  billingLastName             String?   @map("billing_last_name")
+  billingAddressLine1         String?   @map("billing_address_line1")
+  billingAddressLine2         String?   @map("billing_address_line2")
+  billingCity                 String?   @map("billing_city")
+  billingState                String?   @map("billing_state")
+  billingPostalCode           String?   @map("billing_postal_code")
+  billingCountry              String?   @map("billing_country")
+
+  // Payment method (encrypted sensitive data)
+  paymentMethodType           String    @map("payment_method_type")
+  paymentMethodEncryptedData  String    @map("payment_method_encrypted_data")
+  paymentHolderName           String    @map("payment_holder_name")
+
+  // Profile metadata
+  createdAt                   DateTime  @default(now()) @map("created_at")
+  updatedAt                   DateTime  @updatedAt @map("updated_at")
+  lastUsedAt                  DateTime? @map("last_used_at")
+  purchaseCount               Int       @default(0) @map("purchase_count")
+  isActive                    Boolean   @default(true) @map("is_active")
+
+  // Anti-scalping tracking
+  dailyPurchases              String    @default("{}") @map("daily_purchases")
+
+  @@index([name])
+  @@index([email])
+  @@index([isActive])
+  @@index([createdAt])
+  @@map("profiles")
+}
