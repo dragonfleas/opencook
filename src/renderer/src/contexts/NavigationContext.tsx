@@ -1,21 +1,8 @@
 import { useState, ReactNode } from 'react'
 import { CreateProfileFormData } from '@/lib/validations/profile'
-import { NavigationContext } from '@/hooks/use-navigation'
+import { NavigationContext, type View } from './navigation-context'
 
-export type View =
-  | 'dashboard'
-  | 'profiles'
-  | 'create-profile'
-  | 'analytics'
-  | 'validation'
-  | 'settings'
-
-export interface NavigationContextType {
-  currentView: View
-  setCurrentView: (view: View) => void
-  profileFormData?: CreateProfileFormData
-  setProfileFormData: (data: CreateProfileFormData | undefined) => void
-}
+export type { View }
 
 export function NavigationProvider({ children }: { children: ReactNode }): JSX.Element {
   const [currentView, setCurrentView] = useState<View>('dashboard')

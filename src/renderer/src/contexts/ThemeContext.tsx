@@ -1,17 +1,10 @@
 import { useEffect, useState } from 'react'
-import { ThemeProviderContext } from '@/hooks/use-theme'
-
-type Theme = 'dark' | 'light' | 'system'
+import { Theme, ThemeProviderContext } from './theme-context'
 
 type ThemeProviderProps = {
   children: React.ReactNode
   defaultTheme?: Theme
   storageKey?: string
-}
-
-export type ThemeProviderState = {
-  theme: Theme
-  setTheme: (theme: Theme) => void
 }
 
 export function ThemeProvider({

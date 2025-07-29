@@ -1,7 +1,5 @@
-import { useContext, createContext } from 'react'
-import type { NavigationContextType } from '@/contexts/NavigationContext'
-
-export const NavigationContext = createContext<NavigationContextType | undefined>(undefined)
+import { useContext } from 'react'
+import { NavigationContext, type NavigationContextType } from '@/contexts/navigation-context'
 
 export function useNavigation(): NavigationContextType {
   const context = useContext(NavigationContext)

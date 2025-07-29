@@ -130,3 +130,5 @@ dist
 .pnp.*
 CLAUDE.md
 ROADMAP.md
+dependency-graph.svg
+err.html
