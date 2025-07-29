@@ -88,6 +88,13 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         node-version: [22.x, 24.x]
+        include:
+          - os: ubuntu-latest
+            slug: linux
+          - os: windows-latest
+            slug: win
+          - os: macos-latest
+            slug: mac
 
     steps:
       - name: Checkout code
@@ -103,7 +110,8 @@ jobs:
         run: npm ci
 
       - name: Build application
-        run: npm run build
+        run: |
+          npm run build:${{ matrix.slug }}
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
