@@ -4,15 +4,22 @@ import { ProfileList } from '@/components/profile/ProfileList'
 import { ProfileForm } from '@/components/profile/ProfileForm'
 import { DashboardCard } from '@/components/layout/DashboardCard'
 import { useNavigation } from '@/hooks/use-navigation'
+import { useCreateProfile } from '@/hooks/useCreateProfile'
 import { CreateProfileFormData } from '@/lib/validations/profile'
 
 function App(): React.JSX.Element {
   const { currentView, setCurrentView } = useNavigation()
+  const { createProfile, isCreating } = useCreateProfile()
 
-  const handleCreateProfile = (data: CreateProfileFormData): void => {
-    console.log('Creating profile:', data)
-    // TODO: Call profile creation API
-    setCurrentView('dashboard')
+  const handleCreateProfile = async (data: CreateProfileFormData): Promise<void> => {
+    const result = await createProfile(data)
+
+    if (result.success) {
+      setCurrentView('profiles')
+    } else {
+      // TODO: Show error notification to user
+      console.error('Failed to create profile:', result.error)
+    }
   }
 
   const handleCancelCreateProfile = (): void => {
@@ -75,14 +82,20 @@ function App(): React.JSX.Element {
             </div>
           </DashboardCard>
 
-          <ProfileList />
+          <ProfileList onCreateProfile={() => setCurrentView('create-profile')} />
         </div>
       )}
 
-      {currentView === 'profiles' && <ProfileList />}
+      {currentView === 'profiles' && (
+        <ProfileList onCreateProfile={() => setCurrentView('create-profile')} />
+      )}
 
       {currentView === 'create-profile' && (
-        <ProfileForm onSubmit={handleCreateProfile} onCancel={handleCancelCreateProfile} />
+        <ProfileForm
+          onSubmit={handleCreateProfile}
+          onCancel={handleCancelCreateProfile}
+          isLoading={isCreating}
+        />
       )}
 
       {currentView === 'analytics' && (
