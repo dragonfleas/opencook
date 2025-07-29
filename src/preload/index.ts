@@ -39,7 +39,7 @@ const profileApi = {
     ipcRenderer.invoke('profile:toggle-active', profileId, isActive),
 
   validateForPurchase: (profileId: string): Promise<IpcResponse<ProfileValidationResult>> =>
-    ipcRenderer.invoke('profile:validate-for-purchase', profileId)
+    ipcRenderer.invoke('profile:validate', profileId)
 }
 
 // Custom APIs for renderer

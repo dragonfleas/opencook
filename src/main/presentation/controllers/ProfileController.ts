@@ -1,4 +1,4 @@
-import { IpcMainInvokeEvent } from 'electron'
+import { BaseController } from './BaseController'
 import { CreateProfileUseCase } from '../../application/use-cases/CreateProfileUseCase'
 import { GetProfileUseCase } from '../../application/use-cases/GetProfileUseCase'
 import { ListProfilesUseCase } from '../../application/use-cases/ListProfilesUseCase'
@@ -13,6 +13,7 @@ import {
   ProfileListResponseDto
 } from '../../application/dto/ProfileDto'
 import type { ProfileValidationResult } from '../../application/use-cases/ValidateProfileForPurchaseUseCase'
+import { BaseListQuery } from '../../../shared/types/ipc.types'
 import {
   ProfileNotFoundError,
   MaxProfilesExceededError,
@@ -24,17 +25,18 @@ import {
 } from '../../domain/errors/ProfileErrors'
 import { ValidationError } from '../../domain/errors/ValidationError'
 
-export interface IpcResponse<T = unknown> {
-  success: boolean
-  data?: T
-  error?: {
-    code: string
-    message: string
-    details?: unknown
-  }
+interface ProfileListQuery extends BaseListQuery {
+  // Profile-specific query parameters can be added here
+  // activeOnly is already included from BaseListQuery
 }
 
-export class ProfileController {
+export class ProfileController extends BaseController<
+  ProfileResponseDto,
+  CreateProfileDto,
+  UpdateProfileDto,
+  ProfileValidationResult,
+  ProfileListQuery
+> {
   constructor(
     private readonly createProfile: CreateProfileUseCase,
     private readonly getProfile: GetProfileUseCase,
@@ -43,211 +45,89 @@ export class ProfileController {
     private readonly deleteProfile: DeleteProfileUseCase,
     private readonly toggleProfileActive: ToggleProfileActiveUseCase,
     private readonly validateProfileForPurchase: ValidateProfileForPurchaseUseCase
-  ) {}
-
-  async handleCreateProfile(
-    _event: IpcMainInvokeEvent,
-    dto: CreateProfileDto
-  ): Promise<IpcResponse<ProfileResponseDto>> {
-    try {
-      const profile = await this.createProfile.execute(dto)
-      return {
-        success: true,
-        data: profile
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  ) {
+    super({
+      entityName: 'profile',
+      enableLogging: true,
+      maxListLimit: 100,
+      defaultSortBy: 'createdAt',
+      defaultSortOrder: 'desc'
+    })
   }
 
-  async handleGetProfile(
-    _event: IpcMainInvokeEvent,
-    profileId: string
-  ): Promise<IpcResponse<ProfileResponseDto>> {
-    try {
-      const profile = await this.getProfile.execute(profileId)
-      return {
-        success: true,
-        data: profile
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeCreate(dto: CreateProfileDto): Promise<ProfileResponseDto> {
+    return await this.createProfile.execute(dto)
   }
 
-  async handleListProfiles(
-    _event: IpcMainInvokeEvent,
-    activeOnly: boolean = false
-  ): Promise<IpcResponse<ProfileListResponseDto>> {
-    try {
-      const profiles = await this.listProfiles.execute({ activeOnly })
-      return {
-        success: true,
-        data: profiles
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeGet(id: string): Promise<ProfileResponseDto> {
+    return await this.getProfile.execute(id)
   }
 
-  async handleUpdateProfile(
-    _event: IpcMainInvokeEvent,
-    dto: UpdateProfileDto
-  ): Promise<IpcResponse<ProfileResponseDto>> {
-    try {
-      const profile = await this.updateProfile.execute(dto)
-      return {
-        success: true,
-        data: profile
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeList(query?: ProfileListQuery): Promise<ProfileListResponseDto> {
+    const activeOnly = query?.activeOnly ?? false
+    return await this.listProfiles.execute({ activeOnly })
   }
 
-  async handleDeleteProfile(
-    _event: IpcMainInvokeEvent,
-    profileId: string
-  ): Promise<IpcResponse<void>> {
-    try {
-      await this.deleteProfile.execute(profileId)
-      return {
-        success: true
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeUpdate(dto: UpdateProfileDto): Promise<ProfileResponseDto> {
+    return await this.updateProfile.execute(dto)
   }
 
-  async handleToggleProfileActive(
-    _event: IpcMainInvokeEvent,
-    profileId: string,
-    isActive: boolean
-  ): Promise<IpcResponse<ProfileResponseDto>> {
-    try {
-      const profile = await this.toggleProfileActive.execute(profileId, isActive)
-      return {
-        success: true,
-        data: profile
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeDelete(id: string): Promise<void> {
+    await this.deleteProfile.execute(id)
   }
 
-  async handleValidateProfileForPurchase(
-    _event: IpcMainInvokeEvent,
-    profileId: string
-  ): Promise<IpcResponse<ProfileValidationResult>> {
-    try {
-      const result = await this.validateProfileForPurchase.execute(profileId)
-      return {
-        success: true,
-        data: result
-      }
-    } catch (error) {
-      return this.handleError(error)
-    }
+  protected async executeToggleActive(id: string, isActive: boolean): Promise<ProfileResponseDto> {
+    return await this.toggleProfileActive.execute(id, isActive)
   }
 
-  private handleError<T>(error: unknown): IpcResponse<T> {
+  protected async executeValidate(id: string): Promise<ProfileValidationResult> {
+    return await this.validateProfileForPurchase.execute(id)
+  }
+
+  protected mapErrorToDetails(error: unknown): { code: string; details?: unknown } | null {
     if (error instanceof ProfileNotFoundError) {
-      return {
-        success: false,
-        error: {
-          code: 'PROFILE_NOT_FOUND',
-          message: error.message
-        }
-      }
+      return { code: 'PROFILE_NOT_FOUND' }
     }
 
     if (error instanceof MaxProfilesExceededError) {
-      return {
-        success: false,
-        error: {
-          code: 'MAX_PROFILES_EXCEEDED',
-          message: error.message
-        }
-      }
+      return { code: 'MAX_PROFILES_EXCEEDED' }
     }
 
     if (error instanceof DuplicateProfileError) {
-      return {
-        success: false,
-        error: {
-          code: 'DUPLICATE_PROFILE',
-          message: error.message
-        }
-      }
+      return { code: 'DUPLICATE_PROFILE' }
     }
 
     if (error instanceof ProfileInactiveError) {
-      return {
-        success: false,
-        error: {
-          code: 'PROFILE_INACTIVE',
-          message: error.message
-        }
-      }
+      return { code: 'PROFILE_INACTIVE' }
     }
 
     if (error instanceof ProfileCooldownError) {
       return {
-        success: false,
-        error: {
-          code: 'PROFILE_COOLDOWN',
-          message: error.message,
-          details: {
-            remainingTime: error.remainingTime
-          }
+        code: 'PROFILE_COOLDOWN',
+        details: {
+          remainingTime: error.remainingTime
         }
       }
     }
 
     if (error instanceof ProfilePurchaseLimitError) {
-      return {
-        success: false,
-        error: {
-          code: 'PROFILE_PURCHASE_LIMIT',
-          message: error.message
-        }
-      }
+      return { code: 'PROFILE_PURCHASE_LIMIT' }
     }
 
     if (error instanceof ProfileSuspiciousActivityError) {
-      return {
-        success: false,
-        error: {
-          code: 'PROFILE_SUSPICIOUS_ACTIVITY',
-          message: error.message
-        }
-      }
+      return { code: 'PROFILE_SUSPICIOUS_ACTIVITY' }
     }
 
     if (error instanceof ValidationError) {
       return {
-        success: false,
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: error.message,
-          details: {
-            field: error.field,
-            value: error.value
-          }
+        code: 'VALIDATION_ERROR',
+        details: {
+          field: error.field,
+          value: error.value
         }
       }
     }
 
-    // Generic error handling
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred'
-    console.error('Unhandled error in ProfileController:', error)
-
-    return {
-      success: false,
-      error: {
-        code: 'INTERNAL_ERROR',
-        message: errorMessage
-      }
-    }
+    return null // Let BaseController handle generic errors
   }
 }

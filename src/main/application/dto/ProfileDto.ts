@@ -113,6 +113,14 @@ export interface ProfileResponseDto {
   cooldownRemaining: number
 }
 
+export interface ProfileListQuery {
+  activeOnly?: boolean
+  limit?: number
+  offset?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}
+
 export interface ProfileListDto {
   profiles: ProfileSummaryDto[]
   total: number

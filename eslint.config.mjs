@@ -27,5 +27,11 @@ export default tseslint.config(
       ...eslintPluginReactRefresh.configs.vite.rules
     }
   },
+  {
+    files: ['**/*.test.{ts,tsx}', '**/*.spec.{ts,tsx}', '**/tests/**/*.{ts,tsx}'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'off'
+    }
+  },
   eslintConfigPrettier
 )
