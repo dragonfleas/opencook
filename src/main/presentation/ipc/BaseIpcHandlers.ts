@@ -123,46 +123,46 @@ export abstract class BaseIpcHandlers<
 
   private registerCreateHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.CREATE)
-    this.registerHandler(channel, (event, dto: TCreateDto) =>
-      this.controller.handleCreate(event, dto)
+    this.registerHandler(channel, (event, dto) =>
+      this.controller.handleCreate(event, dto as TCreateDto)
     )
   }
 
   private registerGetHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.GET)
-    this.registerHandler(channel, (event, id: string) => this.controller.handleGet(event, id))
+    this.registerHandler(channel, (event, id) => this.controller.handleGet(event, id as string))
   }
 
   private registerListHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.LIST)
-    this.registerHandler(channel, (event, query?: TListQuery) =>
-      this.controller.handleList(event, query)
+    this.registerHandler(channel, (event, query) =>
+      this.controller.handleList(event, query as TListQuery | undefined)
     )
   }
 
   private registerUpdateHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.UPDATE)
-    this.registerHandler(channel, (event, dto: TUpdateDto) =>
-      this.controller.handleUpdate(event, dto)
+    this.registerHandler(channel, (event, dto) =>
+      this.controller.handleUpdate(event, dto as TUpdateDto)
     )
   }
 
   private registerDeleteHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.DELETE)
-    this.registerHandler(channel, (event, id: string) => this.controller.handleDelete(event, id))
+    this.registerHandler(channel, (event, id) => this.controller.handleDelete(event, id as string))
   }
 
   private registerToggleActiveHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.TOGGLE_ACTIVE)
-    this.registerHandler(channel, (event, id: string, isActive: boolean) =>
-      this.controller.handleToggleActive(event, id, isActive)
+    this.registerHandler(channel, (event, id, isActive) =>
+      this.controller.handleToggleActive(event, id as string, isActive as boolean)
     )
   }
 
   private registerValidateHandler(): void {
     const channel = createIpcChannel(this.entityName, IpcOperation.VALIDATE)
-    this.registerHandler(channel, (event, id: string, context?: unknown) =>
-      this.controller.handleValidate(event, id, context)
+    this.registerHandler(channel, (event, id, context) =>
+      this.controller.handleValidate(event, id as string, context)
     )
   }
 }

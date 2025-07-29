@@ -85,7 +85,7 @@ export abstract class BaseController<
   /**
    * Handles create requests with standardized error handling and logging.
    */
-  async handleCreate(event: IpcMainInvokeEvent, dto: TCreateDto): Promise<IpcResponse<TEntity>> {
+  async handleCreate(_event: IpcMainInvokeEvent, dto: TCreateDto): Promise<IpcResponse<TEntity>> {
     const context: ControllerErrorContext = {
       method: 'handleCreate',
       entityType: this.config.entityName,
@@ -107,7 +107,7 @@ export abstract class BaseController<
   /**
    * Handles get requests with standardized error handling and logging.
    */
-  async handleGet(event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<TEntity>> {
+  async handleGet(_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<TEntity>> {
     const context: ControllerErrorContext = {
       method: 'handleGet',
       entityType: this.config.entityName,
@@ -130,7 +130,7 @@ export abstract class BaseController<
    * Handles list requests with standardized error handling, logging, and query validation.
    */
   async handleList(
-    event: IpcMainInvokeEvent,
+    _event: IpcMainInvokeEvent,
     query?: TListQuery
   ): Promise<IpcResponse<BaseListResponse<TEntity>>> {
     const context: ControllerErrorContext = {
@@ -160,7 +160,7 @@ export abstract class BaseController<
   /**
    * Handles update requests with standardized error handling and logging.
    */
-  async handleUpdate(event: IpcMainInvokeEvent, dto: TUpdateDto): Promise<IpcResponse<TEntity>> {
+  async handleUpdate(_event: IpcMainInvokeEvent, dto: TUpdateDto): Promise<IpcResponse<TEntity>> {
     const context: ControllerErrorContext = {
       method: 'handleUpdate',
       entityType: this.config.entityName,
@@ -183,7 +183,7 @@ export abstract class BaseController<
   /**
    * Handles delete requests with standardized error handling and logging.
    */
-  async handleDelete(event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<void>> {
+  async handleDelete(_event: IpcMainInvokeEvent, id: string): Promise<IpcResponse<void>> {
     const context: ControllerErrorContext = {
       method: 'handleDelete',
       entityType: this.config.entityName,
@@ -206,7 +206,7 @@ export abstract class BaseController<
    * Handles toggle active requests with standardized error handling and logging.
    */
   async handleToggleActive(
-    event: IpcMainInvokeEvent,
+    _event: IpcMainInvokeEvent,
     id: string,
     isActive: boolean
   ): Promise<IpcResponse<TEntity>> {
@@ -233,7 +233,7 @@ export abstract class BaseController<
    * Handles validate requests with standardized error handling and logging.
    */
   async handleValidate(
-    event: IpcMainInvokeEvent,
+    _event: IpcMainInvokeEvent,
     id: string,
     context?: unknown
   ): Promise<IpcResponse<TValidationResult>> {
@@ -333,9 +333,13 @@ export abstract class BaseController<
     }
 
     // Handle domain-specific errors (these should be implemented by concrete controllers)
-    const domainError = this.handleDomainError(error)
-    if (domainError) {
-      return domainError
+    const domainErrorDetails = this.mapErrorToDetails(error)
+    if (domainErrorDetails) {
+      return createErrorResponse(
+        domainErrorDetails.code as IpcErrorCode,
+        error instanceof Error ? error.message : 'An error occurred',
+        domainErrorDetails.details
+      )
     }
 
     // Generic error handling
@@ -345,14 +349,10 @@ export abstract class BaseController<
   }
 
   /**
-   * Handle domain-specific errors. Should be overridden by concrete controllers
+   * Map domain-specific errors to error codes and details. Should be overridden by concrete controllers
    * to handle their specific domain errors.
    */
-  protected handleDomainError<T>(): IpcResponse<T> | null {
-    // Base implementation returns null, indicating no domain-specific handling
-    // Concrete controllers should override this to handle their specific errors
-    return null
-  }
+  protected abstract mapErrorToDetails(error: unknown): { code: string; details?: unknown } | null
 
   /**
    * Logs operations if logging is enabled.
