@@ -1,6 +1,7 @@
 import { Home, Users, Settings, BarChart3, Shield, User } from 'lucide-react'
 import { useNavigation } from '@/hooks/use-navigation'
 import { type View } from '@/contexts/NavigationContext'
+import iconPath from '@/assets/icon.png'
 
 import {
   Sidebar,
@@ -59,7 +60,7 @@ export function AppSidebar(): JSX.Element {
               onClick={() => setCurrentView('dashboard')}
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground group-data-[collapsible=icon]:size-5">
-                <User className="size-4 group-data-[collapsible=icon]:size-3" />
+                <img src={iconPath} alt="OpenCook" className="w-full h-full object-contain" />
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-semibold">OpenCook</span>
