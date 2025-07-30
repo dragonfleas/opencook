@@ -2,7 +2,7 @@ import { IProfileRepository } from '../../domain/repositories/IProfileRepository
 import { Profile } from '../../domain/entities/Profile'
 import { ProfileId } from '../../domain/value-objects/ProfileId'
 import { ProfileName } from '../../domain/value-objects/ProfileName'
-import { PrismaConnection } from '../database/PrismaConnection'
+import { DrizzleConnection } from '../database/DrizzleConnection'
 import { getEncryptionService } from '../encryption/EncryptionService'
 import {
   ProfileData,
@@ -10,18 +10,20 @@ import {
   AddressData,
   PaymentMethodType
 } from '../../../shared/types/profile.types'
-import type { Profile as PrismaProfile } from '@prisma/client'
+import { profiles } from '../database/schema'
+import { eq, desc, count } from 'drizzle-orm'
 
 /**
- * Prisma-based implementation of the profile repository.
- * Handles CRUD operations for profiles using Prisma ORM.
+ * Drizzle-based implementation of the profile repository.
+ * Handles CRUD operations for profiles using Drizzle ORM.
+ * Direct replacement for PrismaProfileRepository with identical interface.
  */
-export class PrismaProfileRepository implements IProfileRepository {
-  private readonly prismaConnection: PrismaConnection
+export class DrizzleProfileRepository implements IProfileRepository {
+  private readonly drizzleConnection: DrizzleConnection
   private readonly encryptionService = getEncryptionService()
 
   constructor() {
-    this.prismaConnection = PrismaConnection.getInstance()
+    this.drizzleConnection = DrizzleConnection.getInstance()
   }
 
   /**
@@ -30,7 +32,7 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @throws {Error} If save operation fails
    */
   async save(profile: Profile): Promise<void> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
     const profileData = profile.toData()
 
     // Encrypt payment method data
@@ -76,17 +78,48 @@ export class PrismaProfileRepository implements IProfileRepository {
       paymentHolderName: profileData.paymentMethod.holderName,
 
       // Metadata
-      lastUsedAt: profileData.lastUsedAt || null,
+      lastUsedAt: profileData.lastUsedAt?.toISOString() || null,
       purchaseCount: profileData.purchaseCount,
-      isActive: profileData.isActive
+      isActive: profileData.isActive,
       // dailyPurchases is handled by entity internally
+      updatedAt: new Date().toISOString()
     }
 
-    await prisma.profile.upsert({
-      where: { id: profileData.id.value },
-      update: data,
-      create: data
-    })
+    // Use INSERT with ON CONFLICT DO UPDATE (upsert)
+    await db
+      .insert(profiles)
+      .values(data)
+      .onConflictDoUpdate({
+        target: profiles.id,
+        set: {
+          name: data.name,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          shippingFirstName: data.shippingFirstName,
+          shippingLastName: data.shippingLastName,
+          shippingAddressLine1: data.shippingAddressLine1,
+          shippingAddressLine2: data.shippingAddressLine2,
+          shippingCity: data.shippingCity,
+          shippingState: data.shippingState,
+          shippingPostalCode: data.shippingPostalCode,
+          shippingCountry: data.shippingCountry,
+          billingFirstName: data.billingFirstName,
+          billingLastName: data.billingLastName,
+          billingAddressLine1: data.billingAddressLine1,
+          billingAddressLine2: data.billingAddressLine2,
+          billingCity: data.billingCity,
+          billingState: data.billingState,
+          billingPostalCode: data.billingPostalCode,
+          billingCountry: data.billingCountry,
+          paymentMethodType: data.paymentMethodType,
+          paymentMethodEncryptedData: data.paymentMethodEncryptedData,
+          paymentHolderName: data.paymentHolderName,
+          lastUsedAt: data.lastUsedAt,
+          purchaseCount: data.purchaseCount,
+          isActive: data.isActive,
+          updatedAt: data.updatedAt
+        }
+      })
   }
 
   /**
@@ -95,17 +128,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to the profile or null if not found
    */
   async findById(id: ProfileId): Promise<Profile | null> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const row = await prisma.profile.findUnique({
-      where: { id: id.value }
-    })
+    const result = await db.select().from(profiles).where(eq(profiles.id, id.value)).limit(1)
 
-    if (!row) {
+    if (result.length === 0) {
       return null
     }
 
-    return this.mapRowToProfile(row)
+    return this.mapRowToProfile(result[0])
   }
 
   /**
@@ -114,17 +145,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to the profile or null if not found
    */
   async findByName(name: ProfileName): Promise<Profile | null> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const row = await prisma.profile.findUnique({
-      where: { name: name.value }
-    })
+    const result = await db.select().from(profiles).where(eq(profiles.name, name.value)).limit(1)
 
-    if (!row) {
+    if (result.length === 0) {
       return null
     }
 
-    return this.mapRowToProfile(row)
+    return this.mapRowToProfile(result[0])
   }
 
   /**
@@ -132,13 +161,11 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to array of profiles
    */
   async findAll(): Promise<Profile[]> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const rows = await prisma.profile.findMany({
-      orderBy: { createdAt: 'desc' }
-    })
+    const result = await db.select().from(profiles).orderBy(desc(profiles.createdAt))
 
-    return Promise.all(rows.map((row) => this.mapRowToProfile(row)))
+    return Promise.all(result.map((row) => this.mapRowToProfile(row)))
   }
 
   /**
@@ -146,14 +173,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to array of active profiles
    */
   async findActive(): Promise<Profile[]> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const rows = await prisma.profile.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: 'desc' }
-    })
+    const result = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.isActive, true))
+      .orderBy(desc(profiles.createdAt))
 
-    return Promise.all(rows.map((row) => this.mapRowToProfile(row)))
+    return Promise.all(result.map((row) => this.mapRowToProfile(row)))
   }
 
   /**
@@ -162,11 +190,9 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise that resolves when the delete operation completes
    */
   async delete(id: ProfileId): Promise<void> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    await prisma.profile.delete({
-      where: { id: id.value }
-    })
+    await db.delete(profiles).where(eq(profiles.id, id.value))
   }
 
   /**
@@ -175,15 +201,14 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to true if deleted, false if not found
    */
   async deleteById(id: ProfileId): Promise<boolean> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
     try {
-      await prisma.profile.delete({
-        where: { id: id.value }
-      })
-      return true
+      const result = await db.delete(profiles).where(eq(profiles.id, id.value))
+
+      // Check if any rows were affected - better-sqlite3 returns changes
+      return result.changes > 0
     } catch {
-      // Prisma throws if record not found
       return false
     }
   }
@@ -194,13 +219,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise that resolves to true if profile exists, false otherwise
    */
   async exists(id: ProfileId): Promise<boolean> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const profile = await prisma.profile.findUnique({
-      where: { id: id.value }
-    })
+    const result = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.id, id.value))
+      .limit(1)
 
-    return profile !== null
+    return result.length > 0
   }
 
   /**
@@ -209,15 +236,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise that resolves to true if profile with name exists, false otherwise
    */
   async existsByName(name: ProfileName): Promise<boolean> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    const profile = await prisma.profile.findFirst({
-      where: {
-        name: name.value
-      }
-    })
+    const result = await db
+      .select({ id: profiles.id })
+      .from(profiles)
+      .where(eq(profiles.name, name.value))
+      .limit(1)
 
-    return profile !== null
+    return result.length > 0
   }
 
   /**
@@ -225,9 +252,11 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise that resolves to the total profile count
    */
   async count(): Promise<number> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    return prisma.profile.count()
+    const result = await db.select({ count: count() }).from(profiles)
+
+    return result[0]?.count || 0
   }
 
   /**
@@ -235,11 +264,14 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise that resolves to the active profile count
    */
   async countActive(): Promise<number> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    return prisma.profile.count({
-      where: { isActive: true }
-    })
+    const result = await db
+      .select({ count: count() })
+      .from(profiles)
+      .where(eq(profiles.isActive, true))
+
+    return result[0]?.count || 0
   }
 
   /**
@@ -248,11 +280,7 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to the count
    */
   async getCount(activeOnly = false): Promise<number> {
-    const prisma = this.prismaConnection.getClient()
-
-    return prisma.profile.count({
-      where: activeOnly ? { isActive: true } : undefined
-    })
+    return activeOnly ? this.countActive() : this.count()
   }
 
   /**
@@ -261,12 +289,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @param timestamp - The timestamp to set
    */
   async updateLastUsed(id: ProfileId, timestamp: Date): Promise<void> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    await prisma.profile.update({
-      where: { id: id.value },
-      data: { lastUsedAt: timestamp }
-    })
+    await db
+      .update(profiles)
+      .set({
+        lastUsedAt: timestamp.toISOString(),
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(profiles.id, id.value))
   }
 
   /**
@@ -275,12 +306,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @param count - The new purchase count
    */
   async updatePurchaseCount(id: ProfileId, count: number): Promise<void> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    await prisma.profile.update({
-      where: { id: id.value },
-      data: { purchaseCount: count }
-    })
+    await db
+      .update(profiles)
+      .set({
+        purchaseCount: count,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(profiles.id, id.value))
   }
 
   /**
@@ -289,12 +323,15 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @param isActive - The new active status
    */
   async updateActiveStatus(id: ProfileId, isActive: boolean): Promise<void> {
-    const prisma = this.prismaConnection.getClient()
+    const db = this.drizzleConnection.getClient()
 
-    await prisma.profile.update({
-      where: { id: id.value },
-      data: { isActive }
-    })
+    await db
+      .update(profiles)
+      .set({
+        isActive,
+        updatedAt: new Date().toISOString()
+      })
+      .where(eq(profiles.id, id.value))
   }
 
   /**
@@ -303,7 +340,7 @@ export class PrismaProfileRepository implements IProfileRepository {
    * @returns Promise resolving to the Profile entity
    * @private
    */
-  private async mapRowToProfile(row: PrismaProfile): Promise<Profile> {
+  private async mapRowToProfile(row: typeof profiles.$inferSelect): Promise<Profile> {
     // Decrypt payment method data
     const decryptedPaymentData = await this.encryptionService.decrypt(
       row.paymentMethodEncryptedData
@@ -352,9 +389,9 @@ export class PrismaProfileRepository implements IProfileRepository {
       shippingAddress,
       billingAddress: billingAddress || undefined,
       paymentMethod,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      lastUsedAt: row.lastUsedAt || undefined,
+      createdAt: new Date(row.createdAt),
+      updatedAt: new Date(row.updatedAt),
+      lastUsedAt: row.lastUsedAt ? new Date(row.lastUsedAt) : undefined,
       purchaseCount: row.purchaseCount,
       isActive: row.isActive
     }

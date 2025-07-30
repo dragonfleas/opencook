@@ -1,6 +1,6 @@
 import { IProfileRepository } from '../../domain/repositories/IProfileRepository'
-import { PrismaProfileRepository } from '../../infrastructure/repositories/PrismaProfileRepository'
-import { PrismaConnection } from '../../infrastructure/database/PrismaConnection'
+import { DrizzleProfileRepository } from '../../infrastructure/repositories/DrizzleProfileRepository'
+import { DrizzleConnection } from '../../infrastructure/database/DrizzleConnection'
 
 import { CreateProfileUseCase } from '../../application/use-cases/CreateProfileUseCase'
 import { GetProfileUseCase } from '../../application/use-cases/GetProfileUseCase'
@@ -35,7 +35,7 @@ export class DependencyContainer {
 
   private initializeInfrastructure(): void {
     // Infrastructure layer - repositories
-    this._profileRepository = new PrismaProfileRepository()
+    this._profileRepository = new DrizzleProfileRepository()
   }
 
   private initializeApplication(): void {
@@ -68,20 +68,21 @@ export class DependencyContainer {
   }
 
   async initialize(): Promise<void> {
+    // Initialize database connection
     try {
-      // Initialize database connection
       console.log('Connecting to database...')
-      const prismaConnection = PrismaConnection.getInstance()
-      await prismaConnection.connect()
+      const drizzleConnection = DrizzleConnection.getInstance()
+      await drizzleConnection.connect()
       console.log('Database connected successfully')
     } catch (error) {
       console.error('Database connection failed:', error)
-      // Continue with IPC registration even if database fails
-      console.log('Continuing with IPC registration despite database error...')
+      console.error('This will cause "Database not connected" errors in the application')
+      console.error('Continuing with IPC registration to allow app to show error state...')
+      // Don't throw here - let the app start and show the error to the user
     }
 
+    // Always register IPC handlers - app needs to function even with DB issues
     try {
-      // Register IPC handlers
       console.log('Registering IPC handlers...')
       this._profileIpcHandlers.register()
       console.log('IPC handlers registered successfully')
@@ -96,8 +97,8 @@ export class DependencyContainer {
     this._profileIpcHandlers.unregister()
 
     // Close database connection
-    const prismaConnection = PrismaConnection.getInstance()
-    await prismaConnection.disconnect()
+    const drizzleConnection = DrizzleConnection.getInstance()
+    await drizzleConnection.disconnect()
   }
 
   // Getters for accessing dependencies (useful for testing)

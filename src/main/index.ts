@@ -1,17 +1,45 @@
 import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
-import { existsSync } from 'fs'
+import { existsSync, writeFileSync, appendFileSync } from 'fs'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { DependencyContainer } from './presentation/bootstrap/DependencyContainer'
+
+// Enable console logging to file in production
+if (!is.dev) {
+  const logPath = join(app.getPath('userData'), 'main-process.log')
+  const originalConsole = { ...console }
+
+  console.log = (...args) => {
+    const message = `[${new Date().toISOString()}] LOG: ${args.join(' ')}\n`
+    appendFileSync(logPath, message, { encoding: 'utf8' })
+    originalConsole.log(...args)
+  }
+
+  console.error = (...args) => {
+    const message = `[${new Date().toISOString()}] ERROR: ${args.join(' ')}\n`
+    appendFileSync(logPath, message, { encoding: 'utf8' })
+    originalConsole.error(...args)
+  }
+
+  console.warn = (...args) => {
+    const message = `[${new Date().toISOString()}] WARN: ${args.join(' ')}\n`
+    appendFileSync(logPath, message, { encoding: 'utf8' })
+    originalConsole.warn(...args)
+  }
+
+  // Clear log file on startup
+  writeFileSync(logPath, `=== OpenCook Main Process Log - ${new Date().toISOString()} ===\n`)
+  console.log('Main process logging enabled. Log file:', logPath)
+}
 
 function createWindow(): void {
   // Create the browser window.
   console.log('Creating BrowserWindow with platform:', process.platform)
 
   const windowOptions = {
-    width: 900,
-    height: 670,
+    width: 1024,
+    height: 768,
     show: false,
     autoHideMenuBar: true,
     webPreferences: {
@@ -36,6 +64,13 @@ function createWindow(): void {
     // Open DevTools in development for debugging
     if (is.dev) {
       mainWindow.webContents.openDevTools()
+    }
+  })
+
+  // Enable DevTools in production with Ctrl+Shift+I
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.control && input.shift && input.key.toLowerCase() === 'i') {
+      mainWindow.webContents.toggleDevTools()
     }
   })
 
