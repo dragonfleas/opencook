@@ -4,12 +4,12 @@ import { ProfileList } from '@/components/profile/ProfileList'
 import { ProfileForm } from '@/components/profile/ProfileForm'
 import { DashboardCard } from '@/components/layout/DashboardCard'
 import { useNavigation } from '@/hooks/use-navigation'
-import { useCreateProfile } from '@/hooks/useCreateProfile'
+import { useProfiles } from '@/hooks/use-profiles-context'
 import { CreateProfileFormData } from '@/lib/validations/profile'
 
 function App(): React.JSX.Element {
   const { currentView, setCurrentView } = useNavigation()
-  const { createProfile, isCreating } = useCreateProfile()
+  const { createProfile, isCreating } = useProfiles()
 
   const handleCreateProfile = async (data: CreateProfileFormData): Promise<void> => {
     const result = await createProfile(data)

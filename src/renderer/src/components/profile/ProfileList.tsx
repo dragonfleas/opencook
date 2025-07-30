@@ -10,7 +10,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { DashboardCard } from '@/components/layout/DashboardCard'
-import { useProfiles } from '@/hooks/useProfiles'
+import { useProfiles } from '@/hooks/use-profiles-context'
 import { ProfileSummaryDto } from '@/types/profile'
 import { Plus } from 'lucide-react'
 
@@ -28,8 +28,21 @@ export function ProfileList({
   onCreateProfile
 }: ProfileListProps): JSX.Element {
   const [showActiveOnly, setShowActiveOnly] = useState(false)
-  const { profiles, loading, error, total, activeCount, refetch, deleteProfile, toggleActive } =
-    useProfiles(showActiveOnly)
+  const {
+    profiles: allProfiles,
+    loading,
+    error,
+    total,
+    activeCount,
+    refetch,
+    deleteProfile,
+    toggleActive
+  } = useProfiles()
+
+  // Filter profiles based on showActiveOnly
+  const profiles = showActiveOnly
+    ? (allProfiles || []).filter((p) => p.isActive)
+    : allProfiles || []
 
   const formatDate = (dateString: string): string => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -126,7 +139,7 @@ export function ProfileList({
           </div>
         </div>
         <div>
-          {profiles.length === 0 ? (
+          {!profiles || profiles.length === 0 ? (
             <div className="flex items-center justify-center py-12">
               <div className="text-muted-foreground text-base">
                 {showActiveOnly ? 'No active profiles found' : 'No profiles found'}

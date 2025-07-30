@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { ProfileList } from '@/components/profile/ProfileList'
+import { ProfilesProvider } from '@/contexts/ProfilesContext'
 import { useProfiles } from '@/hooks/useProfiles'
 import type { ProfileSummaryDto } from '@/types/profile'
 
-// Mock the useProfiles hook
+// Mock the underlying useProfiles hook
 vi.mock('@/hooks/useProfiles', () => ({
   useProfiles: vi.fn()
 }))
@@ -53,7 +54,11 @@ describe('ProfileList', () => {
   })
 
   it('should render profiles table', () => {
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     expect(screen.getByText('Profiles')).toBeInTheDocument()
     expect(screen.getByText('2 total profiles (1 active)')).toBeInTheDocument()
@@ -70,7 +75,11 @@ describe('ProfileList', () => {
       profiles: []
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     expect(screen.getByText('Loading profiles...')).toBeInTheDocument()
     expect(screen.getByText('Loading...')).toBeInTheDocument()
@@ -86,7 +95,11 @@ describe('ProfileList', () => {
       refetch: mockRefetch
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     expect(screen.getByText('Error loading profiles')).toBeInTheDocument()
     expect(screen.getByText('Failed to load profiles')).toBeInTheDocument()
@@ -104,7 +117,11 @@ describe('ProfileList', () => {
       activeCount: 0
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     expect(screen.getByText('No profiles found')).toBeInTheDocument()
   })
@@ -117,7 +134,11 @@ describe('ProfileList', () => {
       activeCount: 0
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     // Click active only button
     const activeOnlyButton = screen.getByText('Active Only')
@@ -127,7 +148,11 @@ describe('ProfileList', () => {
   })
 
   it('should display profile status badges correctly', () => {
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const activeProfile = screen.getByText('Active')
     const inactiveProfile = screen.getByText('Inactive')
@@ -137,7 +162,11 @@ describe('ProfileList', () => {
   })
 
   it('should format dates correctly', () => {
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     // Should show "Never" for profiles never used
     expect(screen.getByText('Never')).toBeInTheDocument() // Profile 2 never used
@@ -155,7 +184,11 @@ describe('ProfileList', () => {
       deleteProfile: mockDeleteProfile
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const deleteButtons = screen.getAllByText('Delete')
     fireEvent.click(deleteButtons[0])
@@ -175,7 +208,11 @@ describe('ProfileList', () => {
       deleteProfile: mockDeleteProfile
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const deleteButtons = screen.getAllByText('Delete')
     fireEvent.click(deleteButtons[0])
@@ -191,7 +228,11 @@ describe('ProfileList', () => {
       toggleActive: mockToggleActive
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     // Find deactivate button for active profile
     const deactivateButton = screen.getByText('Deactivate')
@@ -219,7 +260,11 @@ describe('ProfileList', () => {
       return defaultMockReturn
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const activeOnlyButton = screen.getByText('Active Only')
     fireEvent.click(activeOnlyButton)
@@ -235,7 +280,11 @@ describe('ProfileList', () => {
       refetch: mockRefetch
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const refreshButton = screen.getByText('Refresh')
     fireEvent.click(refreshButton)
@@ -249,11 +298,13 @@ describe('ProfileList', () => {
     const mockOnProfileValidate = vi.fn()
 
     render(
-      <ProfileList
-        onProfileSelect={mockOnProfileSelect}
-        onProfileEdit={mockOnProfileEdit}
-        onProfileValidate={mockOnProfileValidate}
-      />
+      <ProfilesProvider>
+        <ProfileList
+          onProfileSelect={mockOnProfileSelect}
+          onProfileEdit={mockOnProfileEdit}
+          onProfileValidate={mockOnProfileValidate}
+        />
+      </ProfilesProvider>
     )
 
     // Should show additional action buttons
@@ -281,7 +332,11 @@ describe('ProfileList', () => {
       deleteProfile: mockDeleteProfile
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const deleteButton = screen.getAllByText('Delete')[0]
     fireEvent.click(deleteButton)
@@ -302,7 +357,11 @@ describe('ProfileList', () => {
       toggleActive: mockToggleActive
     })
 
-    render(<ProfileList />)
+    render(
+      <ProfilesProvider>
+        <ProfileList />
+      </ProfilesProvider>
+    )
 
     const deactivateButton = screen.getByText('Deactivate')
     fireEvent.click(deactivateButton)
