@@ -42,9 +42,15 @@ const profileApi = {
     ipcRenderer.invoke('profile:validate', profileId)
 }
 
+// Support API exposed to renderer
+const supportApi = {
+  mailSupport: (): Promise<IpcResponse<void>> => ipcRenderer.invoke('support:mailSupport')
+}
+
 // Custom APIs for renderer
 const api = {
-  profile: profileApi
+  profile: profileApi,
+  support: supportApi
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

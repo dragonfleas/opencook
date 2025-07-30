@@ -27,8 +27,13 @@ interface ProfileApi {
   validateForPurchase: (profileId: string) => Promise<IpcResponse<ProfileValidationResult>>
 }
 
+interface SupportApi {
+  mailSupport: () => Promise<IpcResponse<void>>
+}
+
 interface API {
   profile: ProfileApi
+  support: SupportApi
 }
 
 declare global {

@@ -12,12 +12,14 @@ import { ValidateProfileForPurchaseUseCase } from '../../application/use-cases/V
 
 import { ProfileController } from '../controllers/ProfileController'
 import { ProfileIpcHandlers } from '../ipc/ProfileIpcHandlers'
+import { SupportIpcHandlers } from '../ipc/SupportIpcHandlers'
 
 export class DependencyContainer {
   private static instance: DependencyContainer
   private _profileRepository!: IProfileRepository
   private _profileController!: ProfileController
   private _profileIpcHandlers!: ProfileIpcHandlers
+  private _supportIpcHandlers!: SupportIpcHandlers
 
   private constructor() {
     // Initialize dependencies in correct order
@@ -65,6 +67,7 @@ export class DependencyContainer {
   private initializePresentation(): void {
     // Presentation layer - IPC handlers
     this._profileIpcHandlers = new ProfileIpcHandlers(this._profileController)
+    this._supportIpcHandlers = new SupportIpcHandlers()
   }
 
   async initialize(): Promise<void> {
@@ -85,6 +88,7 @@ export class DependencyContainer {
     try {
       console.log('Registering IPC handlers...')
       this._profileIpcHandlers.register()
+      this._supportIpcHandlers.register()
       console.log('IPC handlers registered successfully')
     } catch (error) {
       console.error('Failed to register IPC handlers:', error)
@@ -95,6 +99,7 @@ export class DependencyContainer {
   async cleanup(): Promise<void> {
     // Unregister IPC handlers
     this._profileIpcHandlers.unregister()
+    this._supportIpcHandlers.unregister()
 
     // Close database connection
     const drizzleConnection = DrizzleConnection.getInstance()
