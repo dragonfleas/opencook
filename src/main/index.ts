@@ -37,7 +37,7 @@ function createWindow(): void {
   // Create the browser window.
   console.log('Creating BrowserWindow with platform:', process.platform)
 
-  const windowOptions = {
+  const windowOptions: Electron.BrowserWindowConstructorOptions = {
     width: 1024,
     height: 768,
     show: false,
@@ -68,24 +68,27 @@ function createWindow(): void {
   })
 
   // Enable DevTools in production with Ctrl+Shift+I
-  mainWindow.webContents.on('before-input-event', (event, input) => {
+  mainWindow.webContents.on('before-input-event', (_event, input) => {
     if (input.control && input.shift && input.key.toLowerCase() === 'i') {
       mainWindow.webContents.toggleDevTools()
     }
   })
 
   // Add error handling for window loading issues
-  mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-    console.error('Failed to load window content:', {
-      errorCode,
-      errorDescription,
-      validatedURL
-    })
-    // Show window anyway so user can see what's happening
-    if (!mainWindow.isVisible()) {
-      mainWindow.show()
+  mainWindow.webContents.on(
+    'did-fail-load',
+    (_event, errorCode, errorDescription, validatedURL) => {
+      console.error('Failed to load window content:', {
+        errorCode,
+        errorDescription,
+        validatedURL
+      })
+      // Show window anyway so user can see what's happening
+      if (!mainWindow.isVisible()) {
+        mainWindow.show()
+      }
     }
-  })
+  )
 
   // Add timeout fallback to show window if ready-to-show doesn't fire
   setTimeout(() => {

@@ -34,8 +34,7 @@ export function useProfiles(activeOnly = false): UseProfilesResult {
       const response = await ProfileAPI.list(activeOnly)
 
       if (response.success && response.data) {
-        // Map BaseListResponse format to ProfileListResponseDto format
-        const profiles = response.data.items || response.data.profiles || []
+        const profiles = response.data.profiles || []
         const total = response.data.total || 0
         const activeCount = response.data.activeCount || 0
 
