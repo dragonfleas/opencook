@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client'
+import { join } from 'path'
+import { app } from 'electron'
 
 /**
  * Prisma database connection service following Clean Architecture principles.
@@ -33,10 +35,17 @@ export class PrismaConnection {
     }
 
     try {
+      // Use absolute path for database file to avoid Windows path issues
+      const dbPath =
+        process.env.DATABASE_URL || `file:${join(app.getPath('userData'), 'opencook.db')}`
+      console.log('Database path:', dbPath)
+      console.log('User data directory:', app.getPath('userData'))
+      console.log('Current working directory:', process.cwd())
+
       this.prisma = new PrismaClient({
         datasources: {
           db: {
-            url: process.env.DATABASE_URL || 'file:./opencook.db'
+            url: dbPath
           }
         },
         log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error']
@@ -48,6 +57,10 @@ export class PrismaConnection {
       console.log('Prisma database connection established')
     } catch (error) {
       console.error('Failed to connect to database:', error)
+      console.error('Error details:', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined
+      })
       throw new Error(`Database connection failed: ${error}`)
     }
   }

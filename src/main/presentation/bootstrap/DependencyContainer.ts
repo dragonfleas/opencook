@@ -68,12 +68,27 @@ export class DependencyContainer {
   }
 
   async initialize(): Promise<void> {
-    // Initialize database connection
-    const prismaConnection = PrismaConnection.getInstance()
-    await prismaConnection.connect()
+    try {
+      // Initialize database connection
+      console.log('Connecting to database...')
+      const prismaConnection = PrismaConnection.getInstance()
+      await prismaConnection.connect()
+      console.log('Database connected successfully')
+    } catch (error) {
+      console.error('Database connection failed:', error)
+      // Continue with IPC registration even if database fails
+      console.log('Continuing with IPC registration despite database error...')
+    }
 
-    // Register IPC handlers
-    this._profileIpcHandlers.register()
+    try {
+      // Register IPC handlers
+      console.log('Registering IPC handlers...')
+      this._profileIpcHandlers.register()
+      console.log('IPC handlers registered successfully')
+    } catch (error) {
+      console.error('Failed to register IPC handlers:', error)
+      throw error // This is critical - app can't function without IPC
+    }
   }
 
   async cleanup(): Promise<void> {
