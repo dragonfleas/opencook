@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ProfileAPI } from '@/lib/api'
-import type { ProfileSummaryDto } from '@/types/profile'
+import type { ProfileSummaryDto, ProfileResponseDto } from '@/types/profile'
+import type { CreateProfileFormData } from '@/lib/validations/profile'
 
 interface UseProfilesResult {
   profiles: ProfileSummaryDto[]
@@ -11,6 +12,10 @@ interface UseProfilesResult {
   refetch: () => Promise<void>
   deleteProfile: (id: string) => Promise<void>
   toggleActive: (id: string, isActive: boolean) => Promise<void>
+  createProfile: (
+    data: CreateProfileFormData
+  ) => Promise<{ success: boolean; data?: ProfileResponseDto; error?: string }>
+  isCreating: boolean
 }
 
 export function useProfiles(activeOnly = false): UseProfilesResult {
@@ -19,6 +24,7 @@ export function useProfiles(activeOnly = false): UseProfilesResult {
   const [error, setError] = useState<string | null>(null)
   const [total, setTotal] = useState(0)
   const [activeCount, setActiveCount] = useState(0)
+  const [isCreating, setIsCreating] = useState(false)
 
   const fetchProfiles = useCallback(async (): Promise<void> => {
     try {
@@ -28,9 +34,14 @@ export function useProfiles(activeOnly = false): UseProfilesResult {
       const response = await ProfileAPI.list(activeOnly)
 
       if (response.success && response.data) {
-        setProfiles(response.data.profiles)
-        setTotal(response.data.total)
-        setActiveCount(response.data.activeCount)
+        // Map BaseListResponse format to ProfileListResponseDto format
+        const profiles = response.data.items || response.data.profiles || []
+        const total = response.data.total || 0
+        const activeCount = response.data.activeCount || 0
+
+        setProfiles(profiles)
+        setTotal(total)
+        setActiveCount(activeCount)
       } else {
         setError(response.error?.message || 'Failed to fetch profiles')
         setProfiles([])
@@ -94,6 +105,72 @@ export function useProfiles(activeOnly = false): UseProfilesResult {
     }
   }, [])
 
+  const mapFormDataToDto = useCallback((data: CreateProfileFormData) => {
+    return {
+      name: data.name,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      useSameAddress: data.useSameAddress,
+      shippingAddress: data.shippingAddress,
+      billingAddress: data.useSameAddress ? undefined : data.billingAddress,
+      paymentMethod: {
+        type: data.paymentMethod.type,
+        // Extract last 4 digits from full card number
+        lastFourDigits: data.paymentMethod.cardNumber?.slice(-4),
+        expiryMonth: data.paymentMethod.expiryMonth,
+        expiryYear: data.paymentMethod.expiryYear,
+        holderName: data.paymentMethod.holderName,
+        // Include full card data for retail bot automation (will be encrypted)
+        fullCardNumber: data.paymentMethod.cardNumber,
+        cvv: data.paymentMethod.cvv
+      }
+    }
+  }, [])
+
+  const createProfile = useCallback(
+    async (
+      data: CreateProfileFormData
+    ): Promise<{ success: boolean; data?: ProfileResponseDto; error?: string }> => {
+      setIsCreating(true)
+      try {
+        const dto = mapFormDataToDto(data)
+        const response = await ProfileAPI.create(dto)
+
+        if (response.success && response.data) {
+          // Convert ProfileResponseDto to ProfileSummaryDto for the list
+          const summaryDto: ProfileSummaryDto = {
+            id: response.data.id,
+            name: response.data.name,
+            email: response.data.email,
+            isActive: response.data.isActive,
+            purchaseCount: response.data.purchaseCount,
+            lastUsedAt: response.data.lastUsedAt,
+            createdAt: response.data.createdAt
+          }
+
+          // Add to local state
+          setProfiles((prev) => [summaryDto, ...(prev || [])])
+          setTotal((prev) => prev + 1)
+          if (response.data.isActive) {
+            setActiveCount((prev) => prev + 1)
+          }
+
+          console.log('Profile created successfully:', response.data)
+          return { success: true, data: response.data }
+        } else {
+          console.error('Failed to create profile:', response.error)
+          return { success: false, error: response.error?.message || 'Unknown error' }
+        }
+      } catch (error) {
+        console.error('Error creating profile:', error)
+        return { success: false, error: 'An unexpected error occurred' }
+      } finally {
+        setIsCreating(false)
+      }
+    },
+    [mapFormDataToDto]
+  )
+
   useEffect(() => {
     fetchProfiles()
   }, [fetchProfiles])
@@ -106,6 +183,8 @@ export function useProfiles(activeOnly = false): UseProfilesResult {
     activeCount,
     refetch: fetchProfiles,
     deleteProfile,
-    toggleActive
+    toggleActive,
+    createProfile,
+    isCreating
   }
 }
