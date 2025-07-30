@@ -14,12 +14,18 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      webSecurity: is.dev ? false : true // Disable web security in dev for localhost access
     }
   })
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()
+
+    // Open DevTools in development for debugging
+    if (is.dev) {
+      mainWindow.webContents.openDevTools()
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -29,10 +35,26 @@ function createWindow(): void {
 
   // HMR for renderer base on electron-vite cli.
   // Load the remote URL for development or the local html file for production.
+  console.log('Development mode:', is.dev)
+  console.log('ELECTRON_RENDERER_URL:', process.env['ELECTRON_RENDERER_URL'])
+
   if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-    mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL'])
+    const rendererUrl = process.env['ELECTRON_RENDERER_URL']
+    console.log('Loading renderer from URL:', rendererUrl)
+
+    mainWindow.loadURL(rendererUrl).catch((err) => {
+      console.error('Failed to load renderer URL:', err)
+      // Fallback to local file
+      const htmlPath = join(__dirname, '../renderer/index.html')
+      console.log('Falling back to local file:', htmlPath)
+      mainWindow.loadFile(htmlPath)
+    })
   } else {
-    mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
+    const htmlPath = join(__dirname, '../renderer/index.html')
+    console.log('Loading renderer from file:', htmlPath)
+    mainWindow.loadFile(htmlPath).catch((err) => {
+      console.error('Failed to load renderer file:', err)
+    })
   }
 }
 
