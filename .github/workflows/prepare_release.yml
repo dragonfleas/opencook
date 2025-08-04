@@ -1,0 +1,78 @@
+name: Prepare Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Check if tag exists
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          if git tag -l | grep -q "^${TAG_NAME}$"; then
+            echo "::error::A release for this tag already exists."
+            exit 1
+          fi
+
+      - name: Update version
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          npm version "${VERSION}" --no-git-tag-version --allow-same-version
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          gh api repos/:owner/:repo/releases/generate-notes \
+            -f tag_name="${TAG_NAME}" \
+            -f target_commitish="main" \
+            --jq '.body' > release_notes.txt
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          cat release_notes.txt >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Create PR
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          BRANCH="release/${TAG_NAME}"
+          git checkout -b "${BRANCH}"
+          git add package.json package-lock.json
+          git commit -m "chore: bump version to ${TAG_NAME#v}"
+          git push origin "${BRANCH}"
+
+          cat > pr_body.md <<EOF
+          ## Release ${TAG_NAME}
+
+          $RELEASE_NOTES
+          EOF
+
+          gh pr create \
+            --title "Release ${TAG_NAME}" \
+            --body-file pr_body.md \
+            --base main \
+            --head "${BRANCH}"
+        env:
+          TAG_NAME: ${{ inputs.tag_name }}
+          RELEASE_NOTES: ${{ steps.release_notes.outputs.notes }}
+          GH_TOKEN: ${{ github.token }}

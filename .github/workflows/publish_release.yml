@@ -1,0 +1,60 @@
+name: Publish Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  create-draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          draft: true
+          generate_release_notes: true
+
+  build:
+    needs: create-draft
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            artifact: opencook-*.exe
+          - os: ubuntu-latest
+            platform: linux
+            artifact: opencook-*.AppImage
+          - os: macos-latest
+            platform: mac
+            artifact: opencook-*.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build:${{ matrix.platform }}
+
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          files: dist/${{ matrix.artifact }}
+          draft: true
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          draft: false
