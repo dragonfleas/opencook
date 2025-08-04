@@ -9,7 +9,7 @@ on:
         type: string
 
 permissions:
-  contents: write  # Required for creating releases and pushing commits
+  contents: write # Required for creating releases and pushing commits
 
 jobs:
   create-release:
@@ -20,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
         with:
-          fetch-depth: 0  # Fetch all history for release notes generation
+          fetch-depth: 0 # Fetch all history for release notes generation
 
       - name: Create Release
         id: create_release
@@ -94,8 +94,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
         with:
-          ref: main  # Get the latest code including version update
-
+          ref: main # Get the latest code including version update
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -114,7 +113,7 @@ jobs:
           tag_name: ${{ inputs.tag_name }}
           files: |
             dist/${{ matrix.artifact }}
-          draft: true  # Keep as draft during upload
+          draft: true # Keep as draft during upload
 
   publish-release:
     needs: build
@@ -124,4 +123,4 @@ jobs:
         uses: softprops/action-gh-release@v2.3.2
         with:
           tag_name: ${{ inputs.tag_name }}
-          draft: false  # Publish the release
+          draft: false # Publish the release
