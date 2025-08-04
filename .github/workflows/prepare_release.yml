@@ -58,7 +58,7 @@ jobs:
           BRANCH="release/${TAG_NAME}"
           git checkout -b "${BRANCH}"
           git add package.json package-lock.json
-          git commit -m "chore: bump version to ${TAG_NAME#v}"
+          git commit -m "chore: bump version to ${TAG_NAME#v}" --allow-empty
           git push origin "${BRANCH}"
 
           cat > pr_body.md <<EOF
