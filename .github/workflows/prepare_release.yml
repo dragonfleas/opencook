@@ -64,7 +64,7 @@ jobs:
           cat > pr_body.md <<EOF
           ## Release ${TAG_NAME}
 
-          $RELEASE_NOTES
+          ${{ steps.release_notes.outputs.notes }}
           EOF
 
           gh pr create \
@@ -74,5 +74,4 @@ jobs:
             --head "${BRANCH}"
         env:
           TAG_NAME: ${{ inputs.tag_name }}
-          RELEASE_NOTES: ${{ steps.release_notes.outputs.notes }}
           GH_TOKEN: ${{ github.token }}
