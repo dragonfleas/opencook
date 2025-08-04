@@ -61,9 +61,10 @@ jobs:
         env:
           VERSION: ${{ steps.get_version.outputs.VERSION }}
           TAG_NAME: ${{ inputs.tag_name }}
+          GITHUB_ACTOR: ${{ github.actor }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "${GITHUB_ACTOR}"
+          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
           git add package.json package-lock.json
           git commit -m "chore: bump version to ${VERSION}" || echo "No changes to commit"
           git push origin HEAD:main
