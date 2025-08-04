@@ -39,12 +39,12 @@ jobs:
       - name: Generate release notes
         id: release_notes
         run: |
-          gh api repos/:owner/:repo/releases/generate-notes \
+          NOTES=$(gh api repos/:owner/:repo/releases/generate-notes \
             -f tag_name="${TAG_NAME}" \
             -f target_commitish="main" \
-            --jq '.body' > release_notes.txt
+            --jq '.body')
           echo "notes<<EOF" >> $GITHUB_OUTPUT
-          cat release_notes.txt >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         env:
           TAG_NAME: ${{ inputs.tag_name }}
