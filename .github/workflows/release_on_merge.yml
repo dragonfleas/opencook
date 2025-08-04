@@ -1,0 +1,82 @@
+name: Release on Merge
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/v')
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.extract_version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Extract version from branch name
+        id: extract_version
+        run: |
+          BRANCH="${{ github.event.pull_request.head.ref }}"
+          TAG="${BRANCH#release/}"
+          echo "tag=${TAG}" >> $GITHUB_OUTPUT
+
+      - name: Create and push tag
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag "${{ steps.extract_version.outputs.tag }}"
+          git push origin "${{ steps.extract_version.outputs.tag }}"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ steps.extract_version.outputs.tag }}
+          draft: true
+          generate_release_notes: true
+
+  build:
+    needs: release
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: win
+            artifact: opencook-*.exe
+          - os: ubuntu-latest
+            platform: linux
+            artifact: opencook-*.AppImage
+          - os: macos-latest
+            platform: mac
+            artifact: opencook-*.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run build:${{ matrix.platform }}
+
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ needs.release.outputs.tag }}
+          files: dist/${{ matrix.artifact }}
+          draft: true
+
+  publish:
+    needs: [release, build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: softprops/action-gh-release@v2.3.2
+        with:
+          tag_name: ${{ needs.release.outputs.tag }}
+          draft: false
