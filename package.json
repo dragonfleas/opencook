@@ -27,9 +27,13 @@
     ],
     "win": {
       "target": [
-        "portable"
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
       ],
-      "executableName": "opencook"
+      "executableName": "opencook",
+      "artifactName": "${name}-${version}.${ext}"
     },
     "extends": null,
     "nsis": {
