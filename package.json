@@ -160,7 +160,7 @@
     "@vitest/ui": "^3.2.4",
     "dependency-cruiser": "^17.0.0",
     "drizzle-kit": "^0.31.4",
-    "electron": "^37.2.3",
+    "electron": "^37.4.0",
     "electron-builder": "^25.1.8",
     "electron-vite": "^4.0.0",
     "eslint": "^9.31.0",
